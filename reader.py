@@ -13,20 +13,12 @@ def print_fields(reader):
 
 def print_areas(reader):
     result = []
-    index = -1
-
-    for i, field in enumerate(reader.fields):
-        if field[0] == 'ALAND':
-            index = i
-
-    if index == -1:
-        return
 
     for record in reader.iterRecords():
-        print get_geoid_identifier(record) + " (" + get_state_identifier(record) + "): " + str(record[index])
+        print get_geoid_identifier(record) + " (" + get_state_identifier(record) + "): " + str(record[ALAND])
 
 def get_state_identifier(record):
-    return us.states.lookup(record[0]).name
+    return us.states.lookup(record[STATEFP]).name
 
 def get_geoid_identifier(record):
     return record[GEOID]
