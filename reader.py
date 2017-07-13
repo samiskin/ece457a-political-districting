@@ -6,16 +6,29 @@ GEOID = 2
 ALAND = 8
 AWATER = 9
 
+# STATE: [DISTRICT: AREA]
+districts = {}
+
 def print_fields(reader):
     for field in reader.fields:
         print field[0],
     print '\n'
 
-def print_areas(reader):
-    result = []
+def process_data(reader):
+    global districts
 
     for record in reader.iterRecords():
-        print get_geoid_identifier(record) + " (" + get_state_identifier(record) + "): " + str(record[ALAND])
+        state = get_state_identifier(record)
+        if state not in districts:
+            districts[state] = {}
+        geoid = get_geoid_identifier(record)
+        districts[state][geoid] = record[ALAND]
+
+def print_areas(reader):
+    for state in sorted(districts.keys()):
+        print state
+        for geoid in sorted(districts[state].keys()):
+            print '\t- ' + geoid + ': ' + str(districts[state][geoid])
 
 def get_state_identifier(record):
     return us.states.lookup(record[STATEFP]).name
@@ -28,7 +41,7 @@ def main():
     dbf = open('shapefiles/tl_2016_us_cd115.dbf', 'rb')
     reader = shapefile.Reader(shp=shp, dbf =dbf)
 
-    print_fields(reader)
+    process_data(reader)
     print_areas(reader)
 
 if __name__ == '__main__':
