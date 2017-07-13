@@ -6,7 +6,7 @@ GEOID = 2
 ALAND = 8
 AWATER = 9
 
-# STATE: [DISTRICT: AREA]
+# STATE: [DISTRICT: AREA], AREA represented by km^2
 districts = {}
 
 def print_fields(reader):
@@ -22,7 +22,7 @@ def process_data(reader):
         if state not in districts:
             districts[state] = {}
         geoid = get_geoid_identifier(record)
-        districts[state][geoid] = record[ALAND]
+        districts[state][geoid] = record[ALAND] / float(10**6)
 
 def print_areas(reader):
     for state in sorted(districts.keys()):
