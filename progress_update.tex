@@ -1,0 +1,161 @@
+\documentclass[journal]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{algorithmic}
+
+\begin{document}
+\title{Political Districting Progress Update}
+\author{~David~Fu,~David~Zhang,~Ellen~Wang,~Leslie~Reyes,~Seikun~Kambashi,~Shiranka~Miskin}
+\maketitle
+
+% \begin{abstract}
+% The abstract goes here.
+% \end{abstract}
+
+% \section{Introduction}
+% \IEEEPARstart{T}{his} demo file is intended to serve as a ``starter file''
+% for IEEE journal papers produced under \LaTeX\ using
+% IEEEtran.cls version 1.8b and later.
+% I wish you the best of success.
+
+
+\section{Introduction}
+
+Particle Swarm Optimization is an optimization technique which models particles
+moving through a continuous n-dimensional search space, where each particle is a
+potential solution to the problem.  At every iteration each particle computes
+its velocity via the following formula (from the PSO slides) and adds it to its
+current position:
+
+\begin{equation}
+\label{vel_update_eqn}
+V_{t+ 1} = w \cdot v_t + c_1 r_1 (pbest_t - x_t) + c_2 r_2 (gbest_t - x_t)
+\end{equation}
+
+In our report, we propose a novel method of applying Particle Swarm Optimization
+to the discrete problem of Electoral Districting.  Electoral districting
+problems involve assigning small geographical units (GUs) to a fixed number of
+districts such that every district remains contiguous, and every GU is assigned
+a district.  Our measure of fitness factors in district compactness and
+population equality.
+
+\section{Experiment Design}
+
+Our method is inspired by work conducted by Kang-Ping et al\cite{tsp-pso} on the
+TSP\@. In order to apply formula~(\ref{vel_update_eqn}), we must define the
+encoding of a solution and a velocity, as well as define appropriate
+multiplication, addition, and subtraction operators.
+
+\subsection{Solution Encoding}
+We define a particle as a set of districts $P = \{D_1, D_2, \dots, D_n\}$ where
+each district $D_i$ is a set GUs assigned to that district.  In order to ensure
+that district $D_i$ will represent the same general area between all candidate
+solutions, we select $n$ GUs which are far apart from each other to function as
+``centers'', similar to work done by Ricca et al\cite{voronoi}.  These central
+GUs remain constant over all solutions, and district $D_i$ is defined as the
+district containing the $i\text{'th}$ center.
+
+\subsection{Velocity Encoding}
+We define a Swap Operator $SO(i, D_j)$ as taking GU $i$ belonging to district
+$D_c, c \neq j$ and assigning it to $D_j$.  A swap is only valid if $i$ is a
+neighbouring unit to district $D_j$.  We now define Velocity to be an ordered
+sequence of one or more valid Swap Operators.
+
+\begin{equation}
+\label{vel_encoding}
+    V = (SO_1, SO_2, \dots, SO_m)
+\end{equation}
+
+It is important to note that $SO_{j = i + 1}$ must be valid under the state
+resulting from applying $SO_i$.  The removal of any intermediate $SO$ may
+invalidate the entire sequence.
+
+\subsection{Addition of Velocities to Solutions}
+Given a solution $X$ and a velocity $V = (SO_1 \dots SO_m)$, $X + V$ is the
+solution resulting from the application of swaps $SO_1 \dots SO_m$ on $X$ in
+ascending order.
+
+\subsection{Subtraction of Solutions from Solutions}
+Given solutions $A$ and $B$, the subtraction operator $A - B$ is a
+velocity described by a minimal sequence of swaps required to transform solution
+$B$ into $A$.  This is determined by iterating through all districts $D_{j}$ in
+$B$ and applying $SO(i, D_j)$ if GU $i$ is adjacent to $D_j$ in $B$ and GU $i$ is
+assigned to $D_j$ in $A$.
+
+\subsection{Multiplication of Real Numbers and Velocities}
+Given $V = (SO_1 \dots SO_m)$, we define $c \cdot V, c \in [0, 1]$ as the
+sequence constructed from the first $\lceil c \cdot m \rceil$ swap operators in $V$.
+
+\subsection{Addition of Velocities to Velocities}
+Due to a given Swap Operator only being valid on certain solutions, we cannot
+simply append two sequences of swaps.  In PSO, velocities are added in order to
+have a solution be able to tend toward either the current direction of movement,
+the local best solution, or the global best solution.  To achieve this under our
+constraints, in order to determine $X_2 = X_1 + c\cdot V + r_1 \cdot d \cdot (A
+- X_1) + r_2 \cdot e \cdot (B - X_1)$, we approximate this effect by utilising
+the property that $A - B$ will always produce a sequence of swaps which is valid
+on solution $B$.
+
+\begin{equation}
+\label{vel_encoding}
+    \begin{aligned}
+        D &= X_1 + c \cdot V\\
+        E &= D + r_1 \cdot d \cdot (A - D)\\
+        X_2 &= E + r_2 \cdot e \cdot (B - E)\\
+    \end{aligned}
+\end{equation}
+
+The relationship between coefficients $c$, $d$, and $e$ will need to be tuned to fit this new method of
+``addition''.
+
+\section{Software Tools \& Libraries}
+In order to conduct simple tests we created our own data set, and for the final
+report we have acquired population and shape data for all US states from the
+US Census Bureau.
+
+\section{Evaluation Plan}
+We came up with our PSO idea after the lecture on July 12, and as such, have not
+created any code to evaluate it.  We will develop Tabu Search and Simulated
+Annealing solutions based on work by Burcin~Bozkaya et al\cite{local-search},
+and then run Tabu Search, Simulated Annealing, and our own PSO method on the
+census data for 3 states using the same fitness function to compare the solutions.
+
+% \subsection{Subsection Heading Here}
+% Subsection text here.
+
+% \subsubsection{Subsubsection Heading Here}
+% Subsubsection text here.
+
+% \appendices
+% \section{Proof of the First Zonklar Equation}
+% Appendix one text goes here.
+
+% \section{}
+% Appendix two text goes here.
+
+% % use section* for acknowledgment
+% \section*{Acknowledgment}
+
+% The authors would like to thank...
+
+
+
+\begin{thebibliography}{1}
+
+\bibitem{tsp-pso}
+Kang-Ping~Wang et al. Particle Swarm Optimization for Travelling Salesman
+        Problem, 2003
+
+\bibitem{voronoi}
+Federica~Ricca et al. Weighted Voronoi region algorithms for political
+        districting, 2008
+
+\bibitem{local-search}
+    Burcin~Bozkaya et al.  A tabu search heuristic and adaptive memory procedure
+        for political districting, 2003
+\end{thebibliography}
+\end{document}
+
+
