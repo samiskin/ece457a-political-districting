@@ -1,7 +1,7 @@
 import shapefile
 import us
 
-STATEFP = 0
+STATEFIPS = 0
 GEOID = 2
 ALAND = 8
 AWATER = 9
@@ -27,24 +27,33 @@ def process_data():
         geoid = get_geoid_identifier(record)
         districts[state][geoid] = get_land_area(record) / float(10**6)
 
-def print_areas():
-    for state in sorted(districts.keys()):
+def print_areas(*args, **kwargs):
+    states = args if args else districts.keys()
+
+    for state in sorted(states):
         print state
         for geoid in sorted(districts[state].keys()):
             print '\t- ' + geoid + ': ' + str(districts[state][geoid])
+        print_shapefiles(unicode(state))
 
 def get_land_area(record):
     return record[ALAND]
 
 def get_state_identifier(record):
-    return us.states.lookup(record[STATEFP]).name
+    return us.states.lookup(record[STATEFIPS]).name
 
 def get_geoid_identifier(record):
     return record[GEOID]
 
+def print_shapefiles(state):
+    urls = us.states.lookup(state).shapefile_urls()
+    for region, url in urls.items():
+        print '%s: %s' % (region, url)
+    print '\n'
+
 def main():
     process_data()
-    print_areas()
+    print_areas('Iowa', 'North Carolina', 'South Carolina')
 
 if __name__ == '__main__':
     main()
