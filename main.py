@@ -1,9 +1,11 @@
 from __future__ import print_function
+from time import time
 from sets import Set
 import copy
 import math
 import random
 
+program_start = time()
 
 w = 8
 h = 7
@@ -138,7 +140,7 @@ print(cur_fitness)
 # A swap is a tuple of (id, district)
 # A velocity is an array of swaps
 
-MAX_DIF_LEN = 10
+MAX_DIF_LEN = 15
 
 def find_valid_swap(districts_a, districts_b):
     randomized_districts = list(range(0, len(districts_b)))
@@ -169,29 +171,6 @@ def sol_minus_sol(sol_a, sol_b):
 
     return swaps
 
-A = list(initial_solution)
-B = list(A)
-C = list(A)
-B[toI(6, 4)] = 5
-B[toI(5, 4)] = 5
-B[toI(7, 4)] = 5
-B[toI(6, 3)] = 5
-B[toI(7, 3)] = 5
-
-C[toI(0, 4)] = 6
-C[toI(1, 4)] = 6
-C[toI(0, 5)] = 6
-C[toI(1, 5)] = 6
-C[toI(2, 5)] = 6
-
-
-print_solution(A)
-print('\n')
-print_solution(B)
-print('\n')
-print_solution(C)
-print('\n')
-
 def sol_plus_vel(orig_sol, vel):
     sol = list(orig_sol)
     for (cell_to_swap, new_district) in vel:
@@ -217,11 +196,11 @@ def rand_swap(districts):
                     if is_contiguous_without_cell(districts[district_of_neighbor], neighbor):
                         return (neighbor, district_of_neighbor, rand_district)
 
+MAX_VEL_LEN = 15
 def rand_vel(sol):
-    vel_length = 15 # TODO: Change this
     swaps = []
     districts = get_district_map(sol)
-    for i in xrange(0, vel_length):
+    for i in xrange(0, MAX_VEL_LEN):
        (cell_to_swap, orig_cell_district, new_cell_district) = rand_swap(districts)
        if cell_to_swap is None:
            break
@@ -243,11 +222,13 @@ def tick(X, pbest, gbest):
     return X2
 
 MAX_ITERATIONS = 1000
-NUM_PARTICLES = 10
+NUM_PARTICLES = 5
 particles = [list(initial_solution) for i in xrange(0, NUM_PARTICLES)]
 vels = [rand_vel(p) for p in particles] 
 pbests = [list(p) for p in particles]
 gbest = list(initial_solution)
+
+
 for _ in xrange(0, MAX_ITERATIONS):
     for i, particle in enumerate(particles):
         new_x = tick(particle, pbests[i], gbest)
@@ -260,9 +241,7 @@ for _ in xrange(0, MAX_ITERATIONS):
 
 print('-----   Final (Cost: {} -> {})   -----'.format(-fitness(initial_solution), -fitness(gbest)))
 print_solution(gbest)
-
-
-
+print(time() - program_start)
 exit(1)
 
 
@@ -335,3 +314,4 @@ print_solution(initial_solution)
 print('\n')
 print('-----   Final (Cost: {})   -----'.format(-best_fitness))
 print_solution(best_solution)
+print(time() - program_start)
