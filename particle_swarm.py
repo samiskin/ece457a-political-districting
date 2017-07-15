@@ -12,8 +12,8 @@ p = GridProblem()
 # A swap is a tuple of (id, district)
 # A velocity is an array of swaps
 
-MAX_DIF_LEN = 15
-MAX_VEL_LEN = 15
+MAX_DIF_LEN = 4
+MAX_VEL_LEN = 10
 C1 = 1
 C2 = 1
 C3 = 1
