@@ -9,9 +9,6 @@ w = 8
 h = 7
 num_districts = 7
 
-toXY = lambda i: (i % w, i / w)
-toI = lambda x, y: y*w + x
-
 #populations = [int(random.random()*100 + 1) for i in range(w*h)]
 populations = [1 for i in range(w*h)]
 areas = [1 for i in range(w*h)]
@@ -25,6 +22,9 @@ areas = [1 for i in range(w*h)]
 
 # A district is a Set of ids (integers)
 
+
+toXY = lambda i: (i % w, i / w)
+toI = lambda x, y: y*w + x
 
 def print_solution(solution):
     for y in range(h):
@@ -87,8 +87,6 @@ def solution_neighborhood(solution):
     districts = get_district_map(solution)
     neighborhood = []
     for (cell, district) in enumerate(solution):
-        if len(districts[district]) == 1:
-            continue
         if not is_contiguous_without_cell(districts[district], cell):
             continue
         for (border_cell, _) in borders[cell]:
@@ -100,6 +98,8 @@ def solution_neighborhood(solution):
     return neighborhood
 
 def is_contiguous_without_cell(district, cell_to_skip):
+    if len(district) <= 1:
+        return False
     cells_to_check = set(district)
     cells_to_check.remove(cell_to_skip)
     random_cell = cells_to_check.pop()
@@ -128,6 +128,171 @@ best_solution = cur_solution
 best_fitness = cur_fitness
 should_stop = False
 print(cur_fitness)
+
+
+
+
+
+
+
+# A swap is a tuple of (id, district)
+# A velocity is an array of swaps
+
+MAX_DIF_LEN = 10
+
+def find_valid_swap(districts_a, districts_b):
+    randomized_districts = list(range(0, len(districts_b)))
+    random.shuffle(randomized_districts)
+
+    for rand_district in randomized_districts:
+        for cell in districts_b[rand_district]:
+            for (neighbor, _) in borders[cell]:
+                if neighbor not in districts_b[rand_district] \
+                        and neighbor in districts_a[rand_district]:
+                    district_of_neighbor = (i for i,v in enumerate(districts_b) if neighbor in v).next()
+                    if is_contiguous_without_cell(districts_b[district_of_neighbor], neighbor):
+                        return (neighbor, district_of_neighbor, rand_district)
+    return (None, None, None)
+
+
+def sol_minus_sol(sol_a, sol_b):
+    districts_a = get_district_map(sol_a)
+    districts_b = get_district_map(sol_b)
+    swaps = []
+    for i in xrange(0, MAX_DIF_LEN):
+       (cell_to_swap, orig_cell_district, new_cell_district) = find_valid_swap(districts_a, districts_b)
+       if cell_to_swap is None:
+           break
+       districts_b[orig_cell_district].remove(cell_to_swap)
+       districts_b[new_cell_district].add(cell_to_swap)
+       swaps.append((cell_to_swap, new_cell_district))
+
+    return swaps
+
+A = list(initial_solution)
+B = list(A)
+C = list(A)
+B[toI(6, 4)] = 5
+B[toI(5, 4)] = 5
+B[toI(7, 4)] = 5
+B[toI(6, 3)] = 5
+B[toI(7, 3)] = 5
+
+C[toI(0, 4)] = 6
+C[toI(1, 4)] = 6
+C[toI(0, 5)] = 6
+C[toI(1, 5)] = 6
+C[toI(2, 5)] = 6
+
+
+print_solution(A)
+print('\n')
+print_solution(B)
+print('\n')
+print_solution(C)
+print('\n')
+
+def sol_plus_vel(orig_sol, vel):
+    sol = list(orig_sol)
+    for (cell_to_swap, new_district) in vel:
+        sol[cell_to_swap] = new_district
+    return sol
+
+
+def num_mul_vel(num, vel):
+    assert(num <= 1 and num >= 0)
+    end = int(math.ceil(num * len(vel)))
+    return vel[0:end]
+
+
+def rand_swap(districts):
+    randomized_districts = list(range(0, len(districts)))
+    random.shuffle(randomized_districts)
+
+    for rand_district in randomized_districts:
+        for cell in districts[rand_district]:
+            for (neighbor, _) in borders[cell]:
+                if neighbor not in districts[rand_district]:
+                    district_of_neighbor = (i for i,v in enumerate(districts) if neighbor in v).next()
+                    if is_contiguous_without_cell(districts[district_of_neighbor], neighbor):
+                        return (neighbor, district_of_neighbor, rand_district)
+
+def rand_vel(sol):
+    vel_length = 15 # TODO: Change this
+    swaps = []
+    districts = get_district_map(sol)
+    for i in xrange(0, vel_length):
+       (cell_to_swap, orig_cell_district, new_cell_district) = rand_swap(districts)
+       if cell_to_swap is None:
+           break
+       districts[orig_cell_district].remove(cell_to_swap)
+       districts[new_cell_district].add(cell_to_swap)
+       swaps.append((cell_to_swap, new_cell_district))
+    return swaps
+
+c1 = 1
+c2 = 1
+c3 = 1
+def tick(X, pbest, gbest):
+    r1 = random.random()
+    r2 = random.random()
+    V = rand_vel(X)
+    D = sol_plus_vel(X, num_mul_vel(c1, V))
+    E = sol_plus_vel(D, num_mul_vel(r1 * c2, sol_minus_sol(pbest, D)))
+    X2 = sol_plus_vel(E, num_mul_vel(r2 * c3, sol_minus_sol(gbest, E)))
+    return X2
+
+
+print('----------------')
+print_solution(A)
+print('\n')
+X2 = tick(A, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+print_solution(X2)
+print('\n')
+X2 = tick(X2, B, C)
+
+
+exit(1)
+
+
+
+
+
+
+
+
+
+
 
 # Simulated Annealing
 max_iterations = 10000
@@ -175,6 +340,13 @@ for iter in xrange(0, max_iterations):
 #     else:
 #         break
 #     best_solution = cur_solution
+
+
+
+
+    
+
+
 
 print('\n\n')
 print('-----  Initial (Cost: {})  -----'.format(-initial_fitness))
