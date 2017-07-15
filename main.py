@@ -242,44 +242,25 @@ def tick(X, pbest, gbest):
     X2 = sol_plus_vel(E, num_mul_vel(r2 * c3, sol_minus_sol(gbest, E)))
     return X2
 
+MAX_ITERATIONS = 1000
+NUM_PARTICLES = 10
+particles = [list(initial_solution) for i in xrange(0, NUM_PARTICLES)]
+vels = [rand_vel(p) for p in particles] 
+pbests = [list(p) for p in particles]
+gbest = list(initial_solution)
+for _ in xrange(0, MAX_ITERATIONS):
+    for i, particle in enumerate(particles):
+        new_x = tick(particle, pbests[i], gbest)
+        new_fitness = fitness(new_x)
+        if new_fitness > fitness(pbests[i]):
+            pbests[i] = new_x
+        if new_fitness > fitness(gbest):
+            gbest = new_x
+        particles[i] = new_x
 
-print('----------------')
-print_solution(A)
-print('\n')
-X2 = tick(A, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
-print_solution(X2)
-print('\n')
-X2 = tick(X2, B, C)
+print('-----   Final (Cost: {} -> {})   -----'.format(-fitness(initial_solution), -fitness(gbest)))
+print_solution(gbest)
+
 
 
 exit(1)
