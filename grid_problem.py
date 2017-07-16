@@ -2,15 +2,9 @@ from __future__ import print_function
 import math
 import random
 
-<<<<<<< HEAD
 W = 6
 H = 6
 NUM_DISTRICTS = 4
-=======
-W = 20
-H = 20
-NUM_DISTRICTS = 6
->>>>>>> ec7b332beb6a5926c6a1c2360b7e5873d1e6cd8c
 
 FONT_COLORS = [ 31, 32, 33, 34, 35, 36, 37, 90 ]
 FILL_COLORS = [ 7, 40, 41, 42, 44, 45, 46, 47, 100, 101, 103, 104, 105 ]
@@ -26,9 +20,6 @@ def print_solution(p, solution):
         for x in range(W):
             print('\033[{}m{:5}\033[0m'.format(COLORS[solution[toI(x,y)]], p.populations[toI(x,y)]), end='')
         print('\n')
-
-# for i in range(256):
-#     print('\033[{}m{:5}\033[0m'.format(i, i))
 
 def get_cell_borders(i):
     (x, y) = toXY(i)
@@ -52,9 +43,7 @@ class GridProblem:
         self.num_districts = NUM_DISTRICTS
         self.total_population = reduce(lambda x, y: x + y, self.populations)
 
-    def split_district(self, district):
-        cells = district['cells']
-        
+    def split_district(self, cells):
         seed_a = cells.pop(random.randrange(len(cells)))
         district_a = [ seed_a ]
         neighbours_a = map(lambda x: x[0], self.borders[seed_a])
@@ -97,6 +86,18 @@ class GridProblem:
         return neighbours - set(cells)
     
     def generate_initial_solution(self):
+        '''
+        Implementation of random initial solution based on tabu search paper:
+            "A tabu search heuristic and adaptive memory procedure for political districting."
+            Bozkaya, Burcin, Erhan Erkut, and Gilbert Laporte.
+            European Journal of Operational Research 144.1 (2003): 12-26.
+        
+        districts => array of districts
+        district => {
+            'cells': [ array of cells in district ],
+            'population': population of district
+        }
+        '''
         target_pop = self.total_population / NUM_DISTRICTS
         cells = range(W * H)
         random.shuffle(cells)
@@ -132,7 +133,7 @@ class GridProblem:
                 districts.sort(key=lambda x: x['population'])
 
                 biggest_district = districts.pop()
-                (district_a, district_b) = self.split_district(biggest_district)
+                (district_a, district_b) = self.split_district(biggest_district['cells'])
                 districts.append(district_a)
                 districts.append(district_b)
 
