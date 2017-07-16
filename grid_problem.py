@@ -1,6 +1,7 @@
 from __future__ import print_function
 import math
 import random
+import r_centers
 
 W = 6
 H = 6
@@ -19,6 +20,15 @@ def print_solution(p, solution):
     for y in range(H):
         for x in range(W):
             print('\033[{}m{:5}\033[0m'.format(COLORS[solution[toI(x,y)]], p.populations[toI(x,y)]), end='')
+        print('\n')
+
+def print_centers(p, centers):
+    for y in range(H):
+        for x in range(W):
+            if toI(x,y) in centers:
+                print('\033[{}m{:5}\033[0m'.format(31, p.populations[toI(x,y)]), end='')
+            else:
+                print('\033[{}m{:5}\033[0m'.format(37, p.populations[toI(x,y)]), end='')
         print('\n')
 
 def get_cell_borders(i):
@@ -42,6 +52,8 @@ class GridProblem:
         self.borders = [get_cell_borders(i) for i in range(W*H)]
         self.num_districts = NUM_DISTRICTS
         self.total_population = reduce(lambda x, y: x + y, self.populations)
+        self.centers = r_centers.get_centers(W, H, NUM_DISTRICTS)
+        print_centers(self, self.centers)
 
     def split_district(self, cells):
         seed_a = cells.pop(random.randrange(len(cells)))
