@@ -62,25 +62,29 @@ def num_mul_vel(num, vel):
     return vel[0:end]
 
 
-def rand_swap(districts):
+def rand_swap(districts, tabu_list = set([])):
     randomized_districts = list(range(0, len(districts)))
     random.shuffle(randomized_districts)
 
     for rand_district in randomized_districts:
         for cell in districts[rand_district]:
             for (neighbor, _) in p.borders[cell]:
-                if neighbor not in districts[rand_district]:
+                if neighbor not in districts[rand_district] and (neighbor,
+                        rand_district) not in tabu_list:
                     district_of_neighbor = (i for i,v in enumerate(districts) if neighbor in v).next()
                     if is_contiguous_without_cell(p, districts[district_of_neighbor], neighbor):
                         return (neighbor, district_of_neighbor, rand_district)
+    return (None, None, None)
 
 def rand_vel(sol):
+    tabu_list = set([])
     swaps = []
     districts = get_district_map(p, sol)
-    for i in xrange(0, MAX_VEL_LEN):
-       (cell_to_swap, orig_cell_district, new_cell_district) = rand_swap(districts)
+    while len(swaps) < MAX_VEL_LEN:
+       (cell_to_swap, orig_cell_district, new_cell_district) = rand_swap(districts, tabu_list)
        if cell_to_swap is None:
            break
+       tabu_list.add((cell_to_swap, orig_cell_district))
        districts[orig_cell_district].remove(cell_to_swap)
        districts[new_cell_district].add(cell_to_swap)
        swaps.append((cell_to_swap, new_cell_district))

@@ -1,9 +1,9 @@
 from __future__ import print_function
 import math
 
-W = 8
-H = 7
-NUM_DISTRICTS = 7
+W = 6
+H = 6
+NUM_DISTRICTS = 4
 
 toXY = lambda i: (i % W, i / W)
 toI = lambda x, y: y*W + x
