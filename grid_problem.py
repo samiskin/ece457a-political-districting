@@ -1,9 +1,10 @@
 from __future__ import print_function
 import math
+import random
 
-W = 6
-H = 6
-NUM_DISTRICTS = 4
+W = 10
+H = 12
+NUM_DISTRICTS = 7
 
 toXY = lambda i: (i % W, i / W)
 toI = lambda x, y: y*W + x
@@ -29,16 +30,122 @@ def get_cell_borders(i):
 
 class GridProblem:
     def __init__(self):
-        #populations = [int(random.random()*100 + 1) for i in range(w*h)]
-        self.populations = [1 for i in range(W*H)]
+        self.populations = [int(random.random()*100 + 1) for i in range(W * H)]
+        # self.populations = [1 for i in range(W*H)]
         self.areas = [1 for i in range(W*H)]
         self.borders = [get_cell_borders(i) for i in range(W*H)]
         self.num_districts = NUM_DISTRICTS
         self.total_population = reduce(lambda x, y: x + y, self.populations)
 
+    def split_district(self, district):
+        cells = district['cells']
+        
+        seed_a = cells.pop(random.randrange(len(cells)))
+        district_a = [ seed_a ]
+        neighbours_a = map(lambda x: x[0], self.borders[seed_a])
+        pop_a = self.populations[seed_a]
+
+        seed_b = cells.pop(random.randrange(len(cells)))
+        district_b = [ seed_b ]
+        neighbours_b = map(lambda x: x[0], self.borders[seed_b])
+        pop_b = self.populations[seed_b]
+
+        while (cells):
+            free_a_neighbours = set.intersection(set(cells), set(neighbours_a))
+            if free_a_neighbours:
+                cell = free_a_neighbours[random.randrange(len(free_a_neighbours))]
+                cells.remove(cell)
+                district_a.append(cell)
+                neighbours_a = neighbours_a + map(lambda x: x[0], self.borders[cell])
+                pop_a = pop_a + self.populations[cell]
+
+            free_b_neighbours = set.intersection(set(cells), set(neighbours_b))
+            if free_b_neighbours:
+                cell = free_b_neighbours[random.randrange(len(free_b_neighbours))]
+                cells.remove(cell)
+                district_b.append(cell)
+                neighbours_b = neighbours_b + map(lambda x: x[0], self.borders[cell])
+                pop_b = pop_b + self.populations[cell]
+        
+        return ({
+            'cells': district_a,
+            'population': pop_a
+        }, {
+            'cells': district_b,
+            'population': pop_b
+        })
+
+    def get_district_neighbours(self, cells):
+        neighbours = set([])
+        for cell in cells:
+            neighbours = neighbours | set(map(lambda x: x[0], self.borders[cell]))
+        return neighbours - set(cells)
     
     def generate_initial_solution(self):
-        # Set the initial solution to just rows.  Note that if the number of districts
-        # doesn't match the number of rows, this may not be a valid initial solution.
-        return [int(i / (math.ceil((float(W*H))/self.num_districts))) for i in range(W*H)]
+        target_pop = self.total_population / NUM_DISTRICTS
+        cells = range(W * H)
+        random.shuffle(cells)
+        districts = []
+        
+        seed = cells.pop()
+        current_population = self.populations[seed]
+        current_district = [seed]
+        while (cells):
+            free_neighbours = list(set.intersection(set(cells), self.get_district_neighbours(current_district)))
+            random.shuffle(free_neighbours)
+
+            if current_population > target_pop or not free_neighbours:
+                districts.append({
+                    'cells': current_district,
+                    'population': current_population
+                })
+                seed = cells.pop()
+                current_population = self.populations[seed]
+                current_district = [seed]
+            else:
+                cell = free_neighbours.pop()
+                cells.remove(cell)
+                current_district.append(cell)
+                current_population = current_population + self.populations[cell]
+        districts.append({
+            'cells': current_district,
+            'population': current_population
+        })
+
+        if len(districts) < NUM_DISTRICTS:
+            while(len(districts) != NUM_DISTRICTS):
+                districts.sort(key=lambda x: x['population'])
+
+                biggest_district = districts.pop()
+                (district_a, district_b) = self.split_district(biggest_district)
+                districts.append(district_a)
+                districts.append(district_b)
+
+        elif len(districts) > NUM_DISTRICTS:
+            while(len(districts) != NUM_DISTRICTS):
+                districts.sort(key=lambda x: x['population'])
+
+                smallest_district = districts.pop(0)
+                neighbourhood = self.get_district_neighbours(smallest_district['cells'])
+
+                merging_district_index = None
+                for i in range(len(districts)):
+                    district = districts[i]
+                    if set.intersection(set(district['cells']), neighbourhood):
+                        merging_district_index = i
+                        break
+                
+                merging_district = districts.pop(merging_district_index)
+                districts.append({
+                    'cells': smallest_district['cells'] + merging_district['cells'],
+                    'population': smallest_district['population'] + merging_district['population']
+                })
+
+        result = [-1] * (W * H)
+        for i in range(len(districts)):
+            district = districts[i]
+            for cell in district['cells']:
+                result[cell] = i
+        # return [int(i / (math.ceil((float(W*H))/self.num_districts))) for i in range(W*H)]
+        return result
 
