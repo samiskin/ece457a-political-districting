@@ -43,10 +43,9 @@ population equality.
 
 \section{Experiment Design}
 
-Our method is inspired by work conducted by Kang-Ping et al\cite{tsp-pso} on the
-TSP\@. In order to apply formula~(\ref{vel_update_eqn}), we must define the
-encoding of a solution and a velocity, as well as define appropriate
-multiplication, addition, and subtraction operators.
+Our method is inspired by work conducted by Kang-Ping Wang et al\cite{tsp-pso} on the
+TSP\@. In order to apply formula~(\ref{vel_update_eqn}), we must define several
+encodings and operations.
 
 \subsection{Solution Encoding}
 We define a particle as a set of districts $P = \{D_1, D_2, \dots, D_n\}$ where
@@ -115,12 +114,12 @@ In order to conduct simple tests we created our own data set, and for the final
 report we have acquired population and shape data for all US states from the
 US Census Bureau.
 
-\section{Evaluation Plan}
-We came up with our PSO idea after the lecture on July 12, and as such, have not
-created any code to evaluate it.  We will develop Tabu Search and Simulated
-Annealing solutions based on work by Burcin~Bozkaya et al\cite{local-search},
-and then run Tabu Search, Simulated Annealing, and our own PSO method on the
-census data for 3 states using the same fitness function to compare the solutions.
+\section{Initial Results}
+We developed an initial version of our PSO algorithm as well as an SA
+solution based on work by Burcin~Bozkaya et al\cite{local-search}.  The
+results show our PSO implementation to be slightly worse, however further
+improvements are still possible.  We plan to also implement a Tabu Search
+solution, and compare the three approaches using census data for 3 states.
 
 % \subsection{Subsection Heading Here}
 % Subsection text here.
