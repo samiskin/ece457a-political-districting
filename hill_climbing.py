@@ -20,7 +20,7 @@ print('\n')
 
 for iter in xrange(0, MAX_ITERATIONS):
     neighborhood = solution_neighborhood(p, cur_solution)
-    local_best = max(neighborhood, key=fitness)
+    local_best = max(neighborhood, key=lambda sol: fitness(p, sol))
     local_best_fitness = fitness(p, local_best)
     if local_best_fitness > cur_fitness:
         cur_fitness = local_best_fitness 
@@ -28,7 +28,7 @@ for iter in xrange(0, MAX_ITERATIONS):
     else:
         break
 
-print('-----   Final (Cost: {})   -----'.format(cur_fitness))
+print('-----   Final (Cost: {})   -----'.format(-cur_fitness))
 print_solution(p, cur_solution)
 print('Time: {}s'.format(time.time() - program_start))
 
