@@ -2,9 +2,9 @@ from __future__ import print_function
 import math
 import random
 
-W = 20
-H = 20
-NUM_DISTRICTS = 6
+W = 6
+H = 6
+NUM_DISTRICTS = 4
 
 FONT_COLORS = [ 31, 32, 33, 34, 35, 36, 37, 90 ]
 FILL_COLORS = [ 7, 40, 41, 42, 44, 45, 46, 47, 100, 101, 103, 104, 105 ]
