@@ -2,9 +2,15 @@ from __future__ import print_function
 import math
 import random
 
-W = 10
-H = 12
-NUM_DISTRICTS = 7
+W = 20
+H = 20
+NUM_DISTRICTS = 6
+
+FONT_COLORS = [ 31, 32, 33, 34, 35, 36, 37, 90 ]
+FILL_COLORS = [ 7, 40, 41, 42, 44, 45, 46, 47, 100, 101, 103, 104, 105 ]
+
+# COLORS = FONT_COLORS + FILL_COLORS
+COLORS = FONT_COLORS
 
 toXY = lambda i: (i % W, i / W)
 toI = lambda x, y: y*W + x
@@ -12,8 +18,11 @@ toI = lambda x, y: y*W + x
 def print_solution(p, solution):
     for y in range(H):
         for x in range(W):
-            print('\033[{}m{:5}\033[0m'.format(solution[toI(x,y)] + 31, p.populations[toI(x,y)]), end='')
+            print('\033[{}m{:5}\033[0m'.format(COLORS[solution[toI(x,y)]], p.populations[toI(x,y)]), end='')
         print('\n')
+
+# for i in range(256):
+#     print('\033[{}m{:5}\033[0m'.format(i, i))
 
 def get_cell_borders(i):
     (x, y) = toXY(i)
@@ -30,8 +39,8 @@ def get_cell_borders(i):
 
 class GridProblem:
     def __init__(self):
-        self.populations = [int(random.random()*100 + 1) for i in range(W * H)]
-        # self.populations = [1 for i in range(W*H)]
+        # self.populations = [int(random.random()*100 + 1) for i in range(W * H)]
+        self.populations = [1 for i in range(W*H)]
         self.areas = [1 for i in range(W*H)]
         self.borders = [get_cell_borders(i) for i in range(W*H)]
         self.num_districts = NUM_DISTRICTS
