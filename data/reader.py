@@ -7,6 +7,7 @@ AREA_KEY = 'AREA'
 NAME_KEY = 'NAME'
 POPULATION_KEY = 'POPULATION'
 COORDINATES_KEY = 'COORDINATES'
+NEIGHBOURS_KEY = "NEIGHBOURS"
 
 STATEFP = 0
 GEOID = 3
@@ -19,6 +20,9 @@ _map = {}
 
 # MAPS COUNTY_NAME TO POPULATION
 _populations = {}
+
+# USED FOR ADJACENCY MAPPING TO SAVE MEMORY USAGE
+_counties = set()
 
 def print_fields(reader):
     for field in reader.fields:
@@ -72,10 +76,49 @@ def process_data(*args, **kwargs):
 
             _map[state][county][COORDINATES_KEY] = approximate_coordinates(shape.points)
 
+            _counties.add(county)
+
         shp.close()
         dbf.close()
     except IOError:
         print 'Failed to read shapefiles. Make sure to unzip files.zip first.'
+        return
+
+    try:
+        # Big file, may take a while to read; Check files/county_adjacency for specific format
+        adj = open('files/county_adjacency.txt', 'rb')
+
+        lines = adj.readlines()
+        active_county = None
+
+        for line in lines:
+            line = line.strip()
+            if ', ' in line:    # delimiter for county adjacency
+                active_county, first_neighbor = map(int, line.split(', '))
+
+                if active_county not in _counties or first_neighbor not in _counties:  # Ignore counties not in state
+                    active_county = None
+                    continue
+
+                for state in states:
+                    if active_county in _map[state]:
+                        if NEIGHBOURS_KEY not in _map[state][active_county]:
+                            _map[state][active_county][NEIGHBOURS_KEY] = []
+
+                        _map[state][active_county][NEIGHBOURS_KEY].append(first_neighbor)
+            else:
+                geo_id = int(line)
+                if not active_county or geo_id not in _counties:
+                    continue
+
+                # Implicitly assumed to be adjacent to active county
+                for state in states:
+                    if active_county in _map[state]:
+                        _map[state][active_county][NEIGHBOURS_KEY].append(geo_id)
+
+    except IOError:
+        print 'Failed to read adjacency file. Make sure to unzip files.zip first.'
+        return
 
 # Map coordinates to 1 decimal precision, then place in set to reduce noise
 def approximate_coordinates(points):
@@ -85,7 +128,7 @@ def get_state_name(record):
     return us.states.lookup(record[STATEFP]).name
 
 def get_county_geoid(record):
-    return record[GEOID]
+    return int(record[GEOID])
 
 def get_county_area(record):
     return float(record[ALAND])/ 10**6
@@ -96,6 +139,13 @@ def get_county_name(record):
 def get_county_population(name):
     return _populations[name] if name in _populations else None
 
+# Returns list of geoids for the adjacent counties
+def get_county_adjacencies(state, county):
+    pass
+
+def neighbours_string(neighbours):
+    return ', '.join(map(str, neighbours))
+
 def print_mapping(*args, **kwargs):
     states = args if len(args) > 0 else tracts.keys()
     for state in sorted(states):
@@ -103,11 +153,12 @@ def print_mapping(*args, **kwargs):
         _outer = _map[state]
         for county in sorted(_outer.keys()):
             _inner = _outer[county]
-            print '\tCounty: %s \n\t\t- Name: %s\n\t\t- Area: %s\n\t\t- Population: %s\n\t\t- Coordinates: %s' % (
+            print '\tCounty: %s \n\t\t- Name: %s\n\t\t- Area: %s\n\t\t- Population: %s\n\t\t- Neighbours: %s\n\t\t- Coordinates: %s' % (
                 county,
                 _inner[NAME_KEY],
                 _inner[AREA_KEY],
                 _inner[POPULATION_KEY],
+                neighbours_string(_inner[NEIGHBOURS_KEY]) if NEIGHBOURS_KEY in _inner else 'None',
                 _inner[COORDINATES_KEY]
             )
 
