@@ -119,11 +119,12 @@ def get_county_adjacencies(states):
                         if NEIGHBOURS_KEY not in _map[state][active_county]:
                             _map[state][active_county][NEIGHBOURS_KEY] = []
 
+                        # Deduplication needed since each county is also own neighbour
                         if active_county != first_neighbor:
                             _map[state][active_county][NEIGHBOURS_KEY].append(first_neighbor)
             else:
                 geo_id = int(line)
-                if not active_county or geo_id not in _counties:
+                if not active_county or geo_id not in _counties:    # Ignore counties not in state
                     continue
 
                 # Implicitly assumed to be adjacent to active county
