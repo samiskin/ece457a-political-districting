@@ -155,8 +155,8 @@ def get_county_name(record):
 def get_county_population(name):
     return _populations[name] if name in _populations else None
 
-def neighbours_string(neighbours):
-    return ', '.join(map(str, neighbours))
+def neighbours_string(county, state, neighbours):
+    return ', '.join(['%s (%s)' % (_map[state][n][NAME_KEY], n) for n in neighbours])
 
 def print_mapping(*args, **kwargs):
     states = args if len(args) > 0 else tracts.keys()
@@ -170,7 +170,7 @@ def print_mapping(*args, **kwargs):
                 _inner[NAME_KEY],
                 _inner[AREA_KEY],
                 _inner[POPULATION_KEY],
-                neighbours_string(_inner[NEIGHBOURS_KEY]) if NEIGHBOURS_KEY in _inner else 'None',
+                neighbours_string(county, state, _inner[NEIGHBOURS_KEY]) if NEIGHBOURS_KEY in _inner else 'None',
                 _inner[COORDINATES_KEY]
             )
 
