@@ -14,14 +14,14 @@ GEOID = 3
 NAME = 4
 ALAND = 13
 
-# {STATE: {COUNTY_DICTIONARY}}
-# COUNTY_DICTIONARY MAPS COUNTY GEOID TO KEYS: AREA, NAME, POPULATION, COORDINATES, NEIGHBOURS
+# {State: {}}
+# {} MAPS COUNTY GEOID TO KEYS: AREA, NAME, POPULATION, COORDINATES, NEIGHBOURS
 _map = {}
 
 # MAPS COUNTY_NAME TO POPULATION
 _populations = {}
 
-# USED FOR ADJACENCY MAPPING TO SAVE MEMORY USAGE
+# USED DURING ADJACENCY MAPPING TO SAVE MEMORY USAGE
 _counties = set()
 
 def print_fields(reader):
@@ -36,19 +36,13 @@ def process_data(*args, **kwargs):
         return
 
     states = set(args)
+    get_county_populations()
+    process_shapefiles(states)
+    get_county_adjacencies(states)
 
-    try:
-        pop = open('files/county_population.csv', 'rb')
-
-        lines = pop.readlines()
-        for line in lines:
-            name, population = line.strip().split(', ')
-            _populations[name] = population
-
-        pop.close()
-    except IOError:
-        print 'Failed to read county_population.csv. Make sure to unzip files.zip first.'
-        return
+def process_shapefiles(states):
+    global _map
+    global _counties
 
     try:
         shp = open('files/tl_2016_us_county.shp', 'rb')
@@ -84,6 +78,26 @@ def process_data(*args, **kwargs):
         print 'Failed to read shapefiles. Make sure to unzip files.zip first.'
         return
 
+def get_county_populations():
+    global _populations
+
+    try:
+        pop = open('files/county_population.csv', 'rb')
+
+        lines = pop.readlines()
+        for line in lines:
+            name, population = line.strip().split(', ')
+            _populations[name] = population
+
+        pop.close()
+    except IOError:
+        print 'Failed to read county_population.csv. Make sure to unzip files.zip first.'
+        return
+
+def get_county_adjacencies(states):
+    global _map
+    global _counties
+
     try:
         # Big file, may take a while to read; Check files/county_adjacency for specific format
         adj = open('files/county_adjacency.txt', 'rb')
@@ -105,7 +119,8 @@ def process_data(*args, **kwargs):
                         if NEIGHBOURS_KEY not in _map[state][active_county]:
                             _map[state][active_county][NEIGHBOURS_KEY] = []
 
-                        _map[state][active_county][NEIGHBOURS_KEY].append(first_neighbor)
+                        if active_county != first_neighbor:
+                            _map[state][active_county][NEIGHBOURS_KEY].append(first_neighbor)
             else:
                 geo_id = int(line)
                 if not active_county or geo_id not in _counties:
@@ -113,9 +128,10 @@ def process_data(*args, **kwargs):
 
                 # Implicitly assumed to be adjacent to active county
                 for state in states:
-                    if active_county in _map[state]:
+                    if active_county in _map[state] and active_county != geo_id:
                         _map[state][active_county][NEIGHBOURS_KEY].append(geo_id)
 
+        adj.close()
     except IOError:
         print 'Failed to read adjacency file. Make sure to unzip files.zip first.'
         return
@@ -139,10 +155,6 @@ def get_county_name(record):
 def get_county_population(name):
     return _populations[name] if name in _populations else None
 
-# Returns list of geoids for the adjacent counties
-def get_county_adjacencies(state, county):
-    pass
-
 def neighbours_string(neighbours):
     return ', '.join(map(str, neighbours))
 
@@ -153,7 +165,7 @@ def print_mapping(*args, **kwargs):
         _outer = _map[state]
         for county in sorted(_outer.keys()):
             _inner = _outer[county]
-            print '\tCounty: %s \n\t\t- Name: %s\n\t\t- Area: %s\n\t\t- Population: %s\n\t\t- Neighbours: %s\n\t\t- Coordinates: %s' % (
+            print '\tCounty: %s \n\t\t- Name: %s\n\t\t- Area: %s\n\t\t- Population: %s\n\t\t- Neighbours: %s\n\t\t- Coordinates: %s\n' % (
                 county,
                 _inner[NAME_KEY],
                 _inner[AREA_KEY],
