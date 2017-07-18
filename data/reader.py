@@ -68,7 +68,7 @@ def process_shapefiles(states):
             _map[state][county][NAME_KEY] = get_county_name(record)
             _map[state][county][POPULATION_KEY] = get_county_population(get_county_name(record))
 
-            _map[state][county][COORDINATES_KEY] = approximate_coordinates(shape.points)
+            _map[state][county][COORDINATES_KEY] = get_coordinates(shape.bbox)
 
             _counties.add(county)
 
@@ -137,9 +137,18 @@ def get_county_adjacencies(states):
         print 'Failed to read adjacency file. Make sure to unzip files.zip first.'
         return
 
-# Map coordinates to 1 decimal precision, then place in set to reduce noise
-def approximate_coordinates(points):
-    return list(set([(round(x[0], 1), round(x[1], 1)) for x in points]))
+def get_coordinates(bbox):
+    bottom_left_x = bbox[:2][0]
+    bottom_left_y = bbox[:2][1]
+    top_right_x = bbox[2:][0]
+    top_right_y = bbox[2:][1]
+
+    return [
+        (bottom_left_x, top_right_y),
+        (bottom_left_x, bottom_left_y),
+        (top_right_x, bottom_left_y),
+        (top_right_x, top_right_y),
+    ]
 
 def get_state_name(record):
     return us.states.lookup(record[STATEFP]).name
