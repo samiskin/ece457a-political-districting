@@ -8,6 +8,7 @@ NAME_KEY = 'NAME'
 POPULATION_KEY = 'POPULATION'
 COORDINATES_KEY = 'COORDINATES'
 NEIGHBOURS_KEY = "NEIGHBOURS"
+PERIMETER_KEY = "PERIMETER"
 
 STATEFP = 0
 GEOID = 3
@@ -68,7 +69,9 @@ def process_shapefiles(states):
             _map[state][county][NAME_KEY] = get_county_name(record)
             _map[state][county][POPULATION_KEY] = get_county_population(get_county_name(record))
 
-            _map[state][county][COORDINATES_KEY] = get_coordinates(shape.bbox)
+            coordinates = get_coordinates(shape.bbox)
+            _map[state][county][COORDINATES_KEY] = get_coordinates(coordinates)
+            _map[state][county][PERIMETER_KEY] = get_perimeter(coordinates)
 
             _counties.add(county)
 
@@ -137,6 +140,12 @@ def get_county_adjacencies(states):
         print 'Failed to read adjacency file. Make sure to unzip files.zip first.'
         return
 
+def get_perimeter(coordinates):
+    return abs(coordinates[0][1] - coordinates[1][1]) + \
+           abs(coordinates[1][0] - coordinates[2][0]) + \
+           abs(coordinates[3][1] - coordinates[2][1]) + \
+           abs(coordinates[3][0] - coordinates[0][0])
+
 def get_coordinates(bbox):
     bottom_left_x = bbox[:2][0]
     bottom_left_y = bbox[:2][1]
@@ -175,13 +184,14 @@ def print_mapping(*args, **kwargs):
         _outer = _map[state]
         for county in sorted(_outer.keys()):
             _inner = _outer[county]
-            print '\tCounty: %s \n\t\t- Name: %s\n\t\t- Area: %s\n\t\t- Population: %s\n\t\t- Neighbours: %s\n\t\t- Coordinates: %s\n' % (
+            print '\tCounty: %s \n\t\t- Name: %s\n\t\t- Area: %s\n\t\t- Population: %s\n\t\t- Neighbours: %s\n\t\t- Coordinates: %s\n\t\t- Perimeter: %s\n' % (
                 county,
                 _inner[NAME_KEY],
                 _inner[AREA_KEY],
                 _inner[POPULATION_KEY],
                 neighbours_string(county, state, _inner[NEIGHBOURS_KEY]) if NEIGHBOURS_KEY in _inner else 'None',
-                _inner[COORDINATES_KEY]
+                _inner[COORDINATES_KEY],
+                _inner[PERIMETER_KEY],
             )
 
 def main():
