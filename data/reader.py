@@ -15,8 +15,17 @@ GEOID = 3
 NAME = 4
 ALAND = 13
 
+TOP_LEFT = 0
+BOTTOM_LEFT = 1
+BOTTOM_RIGHT = 2
+TOP_RIGHT = 3
+
+X = 0
+Y = 1
+
 # {State: {}}
 # {} MAPS COUNTY GEOID TO KEYS: AREA, NAME, POPULATION, COORDINATES, NEIGHBOURS
+# NEIGHBOURS MAPS COUNTY GEOID TO SHARED BORDER LENGTH
 _map = {}
 
 # MAPS COUNTY_NAME TO POPULATION
@@ -70,7 +79,7 @@ def process_shapefiles(states):
             _map[state][county][POPULATION_KEY] = get_county_population(get_county_name(record))
 
             coordinates = get_coordinates(shape.bbox)
-            _map[state][county][COORDINATES_KEY] = get_coordinates(coordinates)
+            _map[state][county][COORDINATES_KEY] = coordinates
             _map[state][county][PERIMETER_KEY] = get_perimeter(coordinates)
 
             _counties.add(county)
@@ -120,11 +129,11 @@ def get_county_adjacencies(states):
                 for state in states:
                     if active_county in _map[state]:
                         if NEIGHBOURS_KEY not in _map[state][active_county]:
-                            _map[state][active_county][NEIGHBOURS_KEY] = []
+                            _map[state][active_county][NEIGHBOURS_KEY] = {}
 
                         # Deduplication needed since each county is also own neighbour
                         if active_county != first_neighbor:
-                            _map[state][active_county][NEIGHBOURS_KEY].append(first_neighbor)
+                            _map[state][active_county][NEIGHBOURS_KEY][first_neighbor] = get_neighbour_border_lengths(state, active_county, first_neighbor)
             else:
                 geo_id = int(line)
                 if not active_county or geo_id not in _counties:    # Ignore counties not in state
@@ -133,18 +142,56 @@ def get_county_adjacencies(states):
                 # Implicitly assumed to be adjacent to active county
                 for state in states:
                     if active_county in _map[state] and active_county != geo_id:
-                        _map[state][active_county][NEIGHBOURS_KEY].append(geo_id)
+                        _map[state][active_county][NEIGHBOURS_KEY][geo_id] = get_neighbour_border_lengths(state, active_county, geo_id)
 
         adj.close()
     except IOError:
         print 'Failed to read adjacency file. Make sure to unzip files.zip first.'
         return
 
+def get_neighbour_border_lengths(state, county, neighbour):
+    border_length = 0
+    county = _map[state][county][COORDINATES_KEY]
+    neighbour = _map[state][neighbour][COORDINATES_KEY]
+
+    # Edge case: neighbour enclosed within or completely overlaps (should almost never happen in practice, but just for completeness)
+    if neighbour[TOP_LEFT][X] >= county[TOP_LEFT][X] and \
+       neighbour[TOP_RIGHT][X] <= county[TOP_RIGHT][X] and \
+       neighbour[TOP_LEFT][Y] <= county[TOP_LEFT][Y] and \
+       neighbour[TOP_RIGHT][Y] <= county[TOP_RIGHT][Y] and \
+       neighbour[BOTTOM_LEFT][Y] >= county[BOTTOM_LEFT][Y] and \
+       neighbour[BOTTOM_RIGHT][Y] >= county[BOTTOM_RIGHT][Y]:
+        return _map[state][neighbour][PERIMETER_KEY]
+
+    # Vertical border
+    vertical_diff = abs(
+        min(neighbour[TOP_LEFT][Y], county[TOP_LEFT][Y]) - max(neighbour[BOTTOM_RIGHT][Y], county[BOTTOM_RIGHT][Y])
+    )
+
+    if neighbour[BOTTOM_LEFT][Y] <= county[TOP_LEFT][Y] or neighbour[TOP_LEFT][Y] >= county[BOTTOM_LEFT][Y]:
+        if neighbour[TOP_LEFT][X] >= county[TOP_LEFT][X]:
+            border_length += vertical_diff
+        if neighbour[TOP_RIGHT][X] <= county[TOP_RIGHT][X]:
+            border_length += vertical_diff
+
+    # Horizontal border
+    horizontal_diff = abs(
+        max(neighbour[TOP_LEFT][X], county[TOP_LEFT][X]) - min(neighbour[TOP_RIGHT][X], county[TOP_RIGHT][X])
+    )
+
+    if neighbour[TOP_LEFT][X] <= county[TOP_RIGHT][X] or neighbour[TOP_RIGHT][X] >= county[TOP_LEFT][X]:
+        if neighbour[TOP_LEFT][Y] <= county[TOP_RIGHT][Y]:
+            border_length += horizontal_diff
+        if neighbour[BOTTOM_LEFT][Y] >= county[BOTTOM_RIGHT][Y]:
+            border_length += horizontal_diff
+
+    return border_length
+
 def get_perimeter(coordinates):
-    return abs(coordinates[0][1] - coordinates[1][1]) + \
-           abs(coordinates[1][0] - coordinates[2][0]) + \
-           abs(coordinates[3][1] - coordinates[2][1]) + \
-           abs(coordinates[3][0] - coordinates[0][0])
+    return abs(coordinates[TOP_LEFT][Y] - coordinates[BOTTOM_LEFT][Y]) + \
+           abs(coordinates[BOTTOM_LEFT][X] - coordinates[BOTTOM_RIGHT][X]) + \
+           abs(coordinates[BOTTOM_RIGHT][Y] - coordinates[TOP_RIGHT][Y]) + \
+           abs(coordinates[TOP_RIGHT][X] - coordinates[TOP_LEFT][X])
 
 def get_coordinates(bbox):
     bottom_left_x = bbox[:2][0]
@@ -153,10 +200,10 @@ def get_coordinates(bbox):
     top_right_y = bbox[2:][1]
 
     return [
-        (bottom_left_x, top_right_y),
-        (bottom_left_x, bottom_left_y),
-        (top_right_x, bottom_left_y),
-        (top_right_x, top_right_y),
+        (bottom_left_x, top_right_y),   # TOP_LEFT
+        (bottom_left_x, bottom_left_y), # BOTTOM_LEFT
+        (top_right_x, bottom_left_y),   # BOTTOM_RIGHT
+        (top_right_x, top_right_y),     # TOP_RIGHT
     ]
 
 def get_state_name(record):
@@ -174,8 +221,9 @@ def get_county_name(record):
 def get_county_population(name):
     return _populations[name] if name in _populations else None
 
-def neighbours_string(county, state, neighbours):
-    return ', '.join(['%s (%s)' % (_map[state][n][NAME_KEY], n) for n in neighbours])
+def neighbours_string(state, county, neighbours):
+    # Prints the neighbour's name and the length of border shared betweeen county and the neighbour
+    return ', '.join(['%s (%s)' % (_map[state][n][NAME_KEY], _map[state][county][NEIGHBOURS_KEY][n]) for n in sorted(neighbours)])
 
 def print_mapping(*args, **kwargs):
     states = args if len(args) > 0 else tracts.keys()
@@ -189,7 +237,7 @@ def print_mapping(*args, **kwargs):
                 _inner[NAME_KEY],
                 _inner[AREA_KEY],
                 _inner[POPULATION_KEY],
-                neighbours_string(county, state, _inner[NEIGHBOURS_KEY]) if NEIGHBOURS_KEY in _inner else 'None',
+                neighbours_string(state, county, _inner[NEIGHBOURS_KEY].keys()) if NEIGHBOURS_KEY in _inner else 'None',
                 _inner[COORDINATES_KEY],
                 _inner[PERIMETER_KEY],
             )
