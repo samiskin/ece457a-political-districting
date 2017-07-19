@@ -125,7 +125,6 @@ def get_county_adjacencies(states):
                 active_county, first_neighbor = map(int, line.split(', '))
 
                 if active_county not in _counties or first_neighbor not in _counties:  # Ignore counties not in state
-                    active_county = None
                     continue
 
                 for state in states:
@@ -140,12 +139,15 @@ def get_county_adjacencies(states):
                                 _map[state][active_county][NEIGHBOURS_KEY][first_neighbor] = border_length
             else:
                 geo_id = int(line)
-                if not active_county or geo_id not in _counties:    # Ignore counties not in state
+                if active_county not in _counties or geo_id not in _counties:    # Ignore counties not in state
                     continue
 
                 # Implicitly assumed to be adjacent to active county
                 for state in states:
                     if active_county in _map[state] and active_county != geo_id:
+                        if NEIGHBOURS_KEY not in _map[state][active_county]:
+                            _map[state][active_county][NEIGHBOURS_KEY] = {}
+                            
                         border_length = get_neighbour_border_lengths(state, active_county, geo_id)
                         if border_length > NEGLIGIBLE_BORDER_LENGTH:    # Ignore neighbours that share a negligible border (ie. corner) only
                             _map[state][active_county][NEIGHBOURS_KEY][geo_id] = border_length
