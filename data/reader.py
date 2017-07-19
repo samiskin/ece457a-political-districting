@@ -23,6 +23,8 @@ TOP_RIGHT = 3
 X = 0
 Y = 1
 
+NEGLIGIBLE_BORDER_LENGTH = 0.5
+
 # {State: {}}
 # {} MAPS COUNTY GEOID TO KEYS: AREA, NAME, POPULATION, COORDINATES, NEIGHBOURS
 # NEIGHBOURS MAPS COUNTY GEOID TO SHARED BORDER LENGTH
@@ -134,7 +136,7 @@ def get_county_adjacencies(states):
                         # Deduplication needed since each county is also own neighbour
                         if active_county != first_neighbor:
                             border_length = get_neighbour_border_lengths(state, active_county, first_neighbor)
-                            if border_length > 0.01:    # Ignore neighbours that share a negligible border (ie. corner)
+                            if border_length > NEGLIGIBLE_BORDER_LENGTH:    # Ignore neighbours that share a negligible border (ie. corner)
                                 _map[state][active_county][NEIGHBOURS_KEY][first_neighbor] = border_length
             else:
                 geo_id = int(line)
@@ -145,7 +147,7 @@ def get_county_adjacencies(states):
                 for state in states:
                     if active_county in _map[state] and active_county != geo_id:
                         border_length = get_neighbour_border_lengths(state, active_county, geo_id)
-                        if border_length > 0.01:    # Ignore neighbours that share a negligible border (ie. corner) only
+                        if border_length > NEGLIGIBLE_BORDER_LENGTH:    # Ignore neighbours that share a negligible border (ie. corner) only
                             _map[state][active_county][NEIGHBOURS_KEY][geo_id] = border_length
 
         adj.close()
