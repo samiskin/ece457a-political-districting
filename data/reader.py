@@ -189,13 +189,19 @@ def get_neighbour_border_lengths(state, county, neighbour):
         if neighbour[BOTTOM_LEFT][Y] >= county[BOTTOM_RIGHT][Y]:
             border_length += horizontal_diff
 
-    return border_length
+    return convert_to_km(border_length)
+
+def convert_to_km(value):
+    # Use Iowa County dimensions as standard
+    return value / (1.652672/158.33)
 
 def get_perimeter(coordinates):
-    return abs(coordinates[TOP_LEFT][Y] - coordinates[BOTTOM_LEFT][Y]) + \
-           abs(coordinates[BOTTOM_LEFT][X] - coordinates[BOTTOM_RIGHT][X]) + \
-           abs(coordinates[BOTTOM_RIGHT][Y] - coordinates[TOP_RIGHT][Y]) + \
-           abs(coordinates[TOP_RIGHT][X] - coordinates[TOP_LEFT][X])
+    return convert_to_km(
+        abs(coordinates[TOP_LEFT][Y] - coordinates[BOTTOM_LEFT][Y]) + \
+        abs(coordinates[BOTTOM_LEFT][X] - coordinates[BOTTOM_RIGHT][X]) + \
+        abs(coordinates[BOTTOM_RIGHT][Y] - coordinates[TOP_RIGHT][Y]) + \
+        abs(coordinates[TOP_RIGHT][X] - coordinates[TOP_LEFT][X])
+    )
 
 def get_coordinates(bbox):
     bottom_left_x = bbox[:2][0]
