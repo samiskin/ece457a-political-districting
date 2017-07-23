@@ -60,7 +60,7 @@ def solution_neighborhood(p,solution):
 
 def solution_neighborhood_for_tabu(p,solution):
     districts = get_district_map(p,solution)
-    neighborhood_to_changed_gu = {}
+    changed_gu_to_neighborhood = {}
 
     for (cell, district) in enumerate(solution):
         if not is_contiguous_without_cell(p,districts[district], cell):
@@ -70,8 +70,8 @@ def solution_neighborhood_for_tabu(p,solution):
                 # Swap cell to border_cell's district
                 neighbor = copy.deepcopy(solution)
                 neighbor[cell] = solution[border_cell]
-                neighborhood_to_changed_gu[neighbor] = (cell, solution[cell], solution[border_cell]) 
-    return neighborhood_to_changed_gu
+                changed_gu_to_neighborhood[(cell, solution[cell], solution[border_cell])] = neighbor
+    return changed_gu_to_neighborhood
 
 def is_contiguous_without_cell(p,district, cell_to_skip):
     if len(district) <= 1:
