@@ -9,9 +9,16 @@ W = 6
 H = 6
 NUM_DISTRICTS = 4
 
+VISUALIZE = False
+
 def print_solution(p, solution):
     districts = get_district_map(p, solution)
-    visualizer = Visualizer(p.data, districts)
+    if VISUALIZE:
+        visualizer = Visualizer(p.data, districts)
+    else:
+        for district in districts.keys():
+            print("DISTRICT: " + str(district))
+            print(districts[district])
 
 class Problem:
     def __init__(self):
