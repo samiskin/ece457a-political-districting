@@ -13,6 +13,9 @@ def export_csv(headers, data, file_name):
 	    writer = csv.writer(output, lineterminator='\n')
 	    writer.writerows([headers])
 	    writer.writerows(data)
+# @list: data
+def calculate_stats(data):
+	return (amin(data), amax(data), median(data), std(data))
 
 def simulated_annealing_test():
 	comp_list = []
@@ -28,26 +31,34 @@ def simulated_annealing_test():
 		fitness_list.append(sa_best_fitness)
 		diff_sum += sa_best_fitness - sa_init_fitness
 
+	comp_stats = calculate_stats(comp_list)
 	print "COMP:"
-	print "min:", amin(comp_list)
-	print "max:", amax(comp_list)
-	print "median:", median(comp_list)
-	print "stdev:", std(comp_list)
+	print "min:", comp_stats[0]
+	print "max:", comp_stats[1]
+	print "median:", comp_stats[2]
+	print "stdev:", comp_stats[3]
 
+	pop_stats = calculate_stats(pop_list)
 	print "POP EQ:"
-	print "min:", amin(pop_list)
-	print "max:", amax(pop_list)
-	print "median:", median(pop_list)
-	print "stdev:", std(pop_list)
+	print "min:", pop_stats[0]
+	print "max:", pop_stats[1]
+	print "median:", pop_stats[2]
+	print "stdev:", pop_stats[3]
 
+	fitness_stats = calculate_stats(fitness_list)
 	print "FITNESS:" 
-	print "min:", amin(fitness_list)
-	print "max:", amax(fitness_list)
-	print "median:", median(fitness_list)
-	print "stdev:", std(fitness_list)
+	print "min:", fitness_stats[0]
+	print "max:", fitness_stats[1]
+	print "median:", fitness_stats[2]
+	print "stdev:", fitness_stats[3]
 
 	print "AVG DIFF IN FITNESS:"
 	print diff_sum/NUMBER_OF_RUNS
 
-simulated_annealing_test()
+
+def main():
+	simulated_annealing_test()
+
+if __name__ == '__main__':
+    main()
 
