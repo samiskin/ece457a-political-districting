@@ -2,6 +2,8 @@ from numpy import *
 
 import simulated_annealing 
 import particle_swarm
+import hill_climbing 
+
 import csv
 
 NUMBER_OF_RUNS = 2
@@ -32,14 +34,14 @@ def calculate_stats(comp_list, pop_list, fitness_list, diff_sum):
 	print "AVG DIFF IN FITNESS:"
 	print diff_sum/NUMBER_OF_RUNS
 
-def simulated_annealing_test():
+def simulated_annealing_test(init_temp, cooling_rate, iterations_per_temp):
 	comp_list = []
 	pop_list = []
 	fitness_list = []
 	diff_sum = 0
 
 	for _ in range(NUMBER_OF_RUNS):
-		sa_init_comp, sa_init_pop, sa_init_fitness, sa_best_comp, sa_best_pop, sa_best_fitness = simulated_annealing.test(10, 0.003, 2)
+		sa_init_comp, sa_init_pop, sa_init_fitness, sa_best_comp, sa_best_pop, sa_best_fitness = simulated_annealing.test(init_temp, cooling_rate, iterations_per_temp)
 
 		comp_list.append(sa_best_comp)
 		pop_list.append(sa_best_pop)
@@ -48,14 +50,30 @@ def simulated_annealing_test():
 
 	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
-def particle_swarm_report():
+def particle_swarm_report(c1, c2, c3):
 	comp_list = []
 	pop_list = []
 	fitness_list = []
 	diff_sum = 0
 
 	for _ in range(NUMBER_OF_RUNS):
-		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = particle_swarm.test()
+		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = particle_swarm.test(c1, c2, c3)
+				
+		comp_list.append(best_comp)
+		pop_list.append(best_pop)
+		fitness_list.append(best_fitness)
+		diff_sum += init_fitness - best_fitness
+
+	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+
+def hill_climbing_report():
+	comp_list = []
+	pop_list = []
+	fitness_list = []
+	diff_sum = 0
+
+	for _ in range(NUMBER_OF_RUNS):
+		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = hill_climbing.test()
 				
 		comp_list.append(best_comp)
 		pop_list.append(best_pop)
@@ -65,8 +83,9 @@ def particle_swarm_report():
 	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
 def main():
-	# simulated_annealing_test()
-	particle_swarm_report()
+	# simulated_annealing_test(10, 0.003, 2)
+	# particle_swarm_report(1, 1, 1)
+	# hill_climbing_report()
 
 if __name__ == '__main__':
     main()

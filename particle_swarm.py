@@ -105,6 +105,15 @@ def tick(X, pbest, gbest):
     X2 = sol_plus_vel(E, num_mul_vel(r2 * C3, sol_minus_sol(gbest, E)))
     return X2
 
+def tick_for_testing(X, pbest, gbest, c1, c2, c3):
+    r1 = random.random()
+    r2 = random.random()
+    V = rand_vel(X)
+    D = sol_plus_vel(X, num_mul_vel(c1, V))
+    E = sol_plus_vel(D, num_mul_vel(r1 * c2, sol_minus_sol(pbest, D)))
+    X2 = sol_plus_vel(E, num_mul_vel(r2 * c3, sol_minus_sol(gbest, E)))
+    return X2
+
 def main():
     particles = [p.generate_initial_solution() for i in xrange(0, NUM_PARTICLES)]
     vels = [rand_vel(particle) for particle in particles]
@@ -129,7 +138,7 @@ def main():
     print_solution(p, gbest)
     print('Time: {}s'.format(time.time() - program_start))
 
-def test():
+def test(c1, c2, c3):
     particles = [p.generate_initial_solution() for i in xrange(0, NUM_PARTICLES)]
     vels = [rand_vel(particle) for particle in particles]
     pbests = [particle for particle in particles]
@@ -143,7 +152,7 @@ def test():
 
     for _ in xrange(0, MAX_ITERATIONS):
         for i, particle in enumerate(particles):
-            new_x = tick(particle, pbests[i], gbest)
+            new_x = tick_for_testing(particle, pbests[i], gbest, c1, c2, c3)
             new_fitness = fitness(p, new_x)
             if new_fitness > fitness(p, pbests[i]):
                 pbests[i] = new_x
