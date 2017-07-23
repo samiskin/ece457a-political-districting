@@ -105,25 +105,59 @@ def tick(X, pbest, gbest):
     X2 = sol_plus_vel(E, num_mul_vel(r2 * C3, sol_minus_sol(gbest, E)))
     return X2
 
-particles = [p.generate_initial_solution() for i in xrange(0, NUM_PARTICLES)]
-vels = [rand_vel(particle) for particle in particles]
-pbests = [particle for particle in particles]
-gbest = max(particles, key=lambda sol: fitness(p, sol))
+def main():
+    particles = [p.generate_initial_solution() for i in xrange(0, NUM_PARTICLES)]
+    vels = [rand_vel(particle) for particle in particles]
+    pbests = [particle for particle in particles]
+    gbest = max(particles, key=lambda sol: fitness(p, sol))
 
-print('-----  Initial Best (Cost: {})  -----'.format(-fitness(p, gbest)))
-print_solution(p, gbest)
-print('\n')
+    print('-----  Initial Best (Cost: {})  -----'.format(-fitness(p, gbest)))
+    print_solution(p, gbest)
+    print('\n')
 
-for _ in xrange(0, MAX_ITERATIONS):
-    for i, particle in enumerate(particles):
-        new_x = tick(particle, pbests[i], gbest)
-        new_fitness = fitness(p, new_x)
-        if new_fitness > fitness(p, pbests[i]):
-            pbests[i] = new_x
-        if new_fitness > fitness(p, gbest):
-            gbest = new_x
-        particles[i] = new_x
+    for _ in xrange(0, MAX_ITERATIONS):
+        for i, particle in enumerate(particles):
+            new_x = tick(particle, pbests[i], gbest)
+            new_fitness = fitness(p, new_x)
+            if new_fitness > fitness(p, pbests[i]):
+                pbests[i] = new_x
+            if new_fitness > fitness(p, gbest):
+                gbest = new_x
+            particles[i] = new_x
 
-print('-----   Final (Cost: {})   -----'.format(-fitness(p, gbest)))
-print_solution(p, gbest)
-print('Time: {}s'.format(time.time() - program_start))
+    print('-----   Final (Cost: {})   -----'.format(-fitness(p, gbest)))
+    print_solution(p, gbest)
+    print('Time: {}s'.format(time.time() - program_start))
+
+def test():
+    particles = [p.generate_initial_solution() for i in xrange(0, NUM_PARTICLES)]
+    vels = [rand_vel(particle) for particle in particles]
+    pbests = [particle for particle in particles]
+    gbest = max(particles, key=lambda sol: fitness(p, sol))
+
+    print('-----  Initial Best (Cost: {})  -----'.format(-fitness(p, gbest)))
+    print_solution(p, gbest)
+    print('\n')
+
+    initial_fitness_details = fitness_details(p, gbest)
+
+    for _ in xrange(0, MAX_ITERATIONS):
+        for i, particle in enumerate(particles):
+            new_x = tick(particle, pbests[i], gbest)
+            new_fitness = fitness(p, new_x)
+            if new_fitness > fitness(p, pbests[i]):
+                pbests[i] = new_x
+            if new_fitness > fitness(p, gbest):
+                gbest = new_x
+            particles[i] = new_x
+
+    print('-----   Final (Cost: {})   -----'.format(-fitness(p, gbest)))
+    print_solution(p, gbest)
+    print('Time: {}s'.format(time.time() - program_start))
+
+    best_fitness_details = fitness_details(p, gbest)
+
+    return initial_fitness_details + best_fitness_details
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,7 @@
 from numpy import *
 
 import simulated_annealing 
+import particle_swarm
 import csv
 
 NUMBER_OF_RUNS = 2
@@ -47,8 +48,25 @@ def simulated_annealing_test():
 
 	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
+def particle_swarm_report():
+	comp_list = []
+	pop_list = []
+	fitness_list = []
+	diff_sum = 0
+
+	for _ in range(NUMBER_OF_RUNS):
+		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = particle_swarm.test()
+				
+		comp_list.append(best_comp)
+		pop_list.append(best_pop)
+		fitness_list.append(best_fitness)
+		diff_sum += init_fitness - best_fitness
+
+	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+
 def main():
-	simulated_annealing_test()
+	# simulated_annealing_test()
+	particle_swarm_report()
 
 if __name__ == '__main__':
     main()
