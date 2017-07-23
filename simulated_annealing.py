@@ -9,7 +9,6 @@ from iowa_problem import *
 from utils import *
 
 def main():
-
     program_start = time.time()
 
     p = Problem()
