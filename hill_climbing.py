@@ -1,11 +1,13 @@
 import time
 
-from grid_problem import *
+# from grid_problem import *
+from iowa_problem import *
+
 from utils import *
 
 program_start = time.time()
 
-p = GridProblem()
+p = Problem()
 
 MAX_ITERATIONS = 10000
 
@@ -23,7 +25,7 @@ for iter in xrange(0, MAX_ITERATIONS):
     local_best = max(neighborhood, key=lambda sol: fitness(p, sol))
     local_best_fitness = fitness(p, local_best)
     if local_best_fitness > cur_fitness:
-        cur_fitness = local_best_fitness 
+        cur_fitness = local_best_fitness
         cur_solution = local_best
     else:
         break
@@ -31,8 +33,3 @@ for iter in xrange(0, MAX_ITERATIONS):
 print('-----   Final (Cost: {})   -----'.format(-cur_fitness))
 print_solution(p, cur_solution)
 print('Time: {}s'.format(time.time() - program_start))
-
-
-    
-
-

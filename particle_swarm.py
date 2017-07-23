@@ -2,12 +2,14 @@ import math
 import random
 import time
 
-from grid_problem import *
+# from grid_problem import *
+from iowa_problem import *
+
 from utils import *
 
 program_start = time.time()
 
-p = GridProblem()
+p = Problem()
 
 # A swap is a tuple of (id, district)
 # A velocity is an array of swaps
@@ -29,7 +31,7 @@ def find_valid_swap(districts_a, districts_b):
             for (neighbor, _) in p.borders[cell]:
                 if neighbor not in districts_b[rand_district] \
                         and neighbor in districts_a[rand_district]:
-                    district_of_neighbor = (i for i,v in enumerate(districts_b) if neighbor in v).next()
+                    district_of_neighbor = (i for i,v in districts_b.iteritems() if neighbor in v).next()
                     if is_contiguous_without_cell(p, districts_b[district_of_neighbor], neighbor):
                         return (neighbor, district_of_neighbor, rand_district)
     return (None, None, None)
@@ -50,7 +52,7 @@ def sol_minus_sol(sol_a, sol_b):
     return swaps
 
 def sol_plus_vel(orig_sol, vel):
-    sol = list(orig_sol)
+    sol = dict(orig_sol)
     for (cell_to_swap, new_district) in vel:
         sol[cell_to_swap] = new_district
     return sol
@@ -71,7 +73,7 @@ def rand_swap(districts, tabu_list = set([])):
             for (neighbor, _) in p.borders[cell]:
                 if neighbor not in districts[rand_district] and (neighbor,
                         rand_district) not in tabu_list:
-                    district_of_neighbor = (i for i,v in enumerate(districts) if neighbor in v).next()
+                    district_of_neighbor = (i for i,v in districts.iteritems() if neighbor in v).next()
                     if is_contiguous_without_cell(p, districts[district_of_neighbor], neighbor):
                         return (neighbor, district_of_neighbor, rand_district)
     return (None, None, None)
@@ -104,7 +106,7 @@ def tick(X, pbest, gbest):
     return X2
 
 particles = [p.generate_initial_solution() for i in xrange(0, NUM_PARTICLES)]
-vels = [rand_vel(particle) for particle in particles] 
+vels = [rand_vel(particle) for particle in particles]
 pbests = [particle for particle in particles]
 gbest = max(particles, key=lambda sol: fitness(p, sol))
 
