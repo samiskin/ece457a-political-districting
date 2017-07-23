@@ -1,47 +1,42 @@
 from __future__ import print_function
 import math
 import random
+from data.reader import *
+from utils import get_district_map
 
 W = 6
 H = 6
 NUM_DISTRICTS = 4
 
-FONT_COLORS = [ 31, 32, 33, 34, 35, 36, 37, 90 ]
-FILL_COLORS = [ 7, 40, 41, 42, 44, 45, 46, 47, 100, 101, 103, 104, 105 ]
-
-# COLORS = FONT_COLORS + FILL_COLORS
-COLORS = FONT_COLORS
-
-toXY = lambda i: (i % W, i / W)
-toI = lambda x, y: y*W + x
-
 def print_solution(p, solution):
-    for y in range(H):
-        for x in range(W):
-            print('\033[{}m{:5}\033[0m'.format(COLORS[solution[toI(x,y)]], p.populations[toI(x,y)]), end='')
-        print('\n')
-
-def get_cell_borders(i):
-    (x, y) = toXY(i)
-    borders = set([])
-    if (x > 0):
-        borders.add((toI(x - 1, y), 1))
-    if (x < W - 1):
-        borders.add((toI(x + 1, y), 1))
-    if (y > 0):
-        borders.add((toI(x, y - 1), 1))
-    if (y < H - 1):
-        borders.add((toI(x, y + 1), 1))
-    return borders
+    districts = get_district_map(p, solution)
+    for district in districts.keys():
+        print("DISTRICT: " + str(district))
+        print(districts[district])
 
 class Problem:
     def __init__(self):
-        # self.populations = [int(random.random()*100 + 1) for i in range(W * H)]
-        self.populations = [1 for i in range(W*H)]
-        self.areas = [1 for i in range(W*H)]
-        self.borders = [get_cell_borders(i) for i in range(W*H)]
         self.num_districts = NUM_DISTRICTS
-        self.total_population = reduce(lambda x, y: x + y, self.populations)
+
+        data = Data()
+
+        self.cell_ids = data.map['Iowa'].keys() # [ id_1, id_2, ...]
+
+        self.populations = {} # { id => pop }
+        self.areas = {} # { id => area }
+        self.borders = {} # { id => [(id, border_length), ...] }
+        self.total_population = 0
+
+        for cell_id in self.cell_ids:
+            cell_data = data.map['Iowa'][cell_id]
+            self.populations[cell_id] = int(cell_data[POPULATION_KEY])
+            self.total_population = self.total_population + int(cell_data[POPULATION_KEY])
+            self.areas[cell_id] = float(cell_data[AREA_KEY])
+
+            for neighbour_id in cell_data[NEIGHBOURS_KEY]:
+                if cell_id not in self.borders:
+                    self.borders[cell_id] = []
+                self.borders[cell_id].append((neighbour_id, cell_data[NEIGHBOURS_KEY][neighbour_id]))
 
     def split_district(self, cells):
         seed_a = cells.pop(random.randrange(len(cells)))
@@ -99,7 +94,7 @@ class Problem:
         }
         '''
         target_pop = self.total_population / NUM_DISTRICTS
-        cells = range(W * H)
+        cells = list(self.cell_ids)
         random.shuffle(cells)
         districts = []
 
@@ -162,5 +157,5 @@ class Problem:
             district = districts[i]
             for cell in district['cells']:
                 result[cell] = i
-        # return [int(i / (math.ceil((float(W*H))/self.num_districts))) for i in range(W*H)]
+
         return result
