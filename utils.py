@@ -37,12 +37,21 @@ def get_district_map(p, solution):
 def get_population(p, district):
     return reduce(lambda x, y: x + p.populations[y], district, 0)
 
-
 def fitness(p, solution):
     districts = get_district_map(p, solution)
     d_compact = lambda d: get_perimeter(p,d)**2 / float(get_area(p,d))
     d_pop = lambda d: abs(get_population(p,d) - (p.total_population / float(p.num_districts)))
     return -reduce(lambda f, d: f + d_compact(d) + 2*d_pop(d), districts.values(), 0)
+
+def fitness_details(p, solution): 
+    districts = get_district_map(p, solution)
+    d_compact = lambda d: get_perimeter(p,d)**2 / float(get_area(p,d))
+    d_pop = lambda d: abs(get_population(p,d) - (p.total_population / float(p.num_districts)))
+    
+    compact = reduce(lambda f, d: f + d_compact(d), districts.values(), 0)
+    pop = reduce(lambda f, d: f + d_pop(d), districts.values(), 0)
+    fitness = reduce(lambda f, d: f + d_compact(d) + 2*d_pop(d), districts.values(), 0)
+    return (compact, pop, fitness)
 
 # Determine neighbors by moving a cell from one district to another
 # without causing any discontinuities
