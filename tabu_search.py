@@ -69,14 +69,6 @@ while True: # UNTIL STOPPING CONDITION IS MET
 	# cell that was moved gets new tenure value
 	tenure_table[cur_changed_cell_info[2]][cur_changed_cell_info[0]] = TABU_TENURE
 
-
-	# if there is at least a feasible non-tabu move
-		# select a feasible non-tabu move leading to a best solution
-		# update the tabu-list
-	# else (i.e. all possible moves are either infeasible or tabu)
-		# STOP (a local optimum is found)
-		# break
-
 print('-----   Final (Cost: {})   -----'.format(-best_fitness))
 print_solution(p, best_solution)
 print('Time: {}s'.format(time.time() - program_start))
