@@ -1,6 +1,9 @@
 from numpy import *
 
 import simulated_annealing 
+import particle_swarm
+import hill_climbing 
+
 import csv
 
 NUMBER_OF_RUNS = 2
@@ -13,6 +16,13 @@ def export_csv(data, file_name):
 	with open(file_name, "wb") as output:
 	    writer = csv.writer(output, lineterminator='\n')
 	    writer.writerows(data)
+
+def format_algo_row_data(algo_name, report):
+	row = [algo_name]
+	for stat in report:
+		for stat_value in stat:
+			row.append(stat_value)
+	return row
 
 # @list: data
 def calculate_stats_helper(data):
@@ -37,19 +47,51 @@ def calculate_stats(comp_list, pop_list, fitness_list, diff_sum):
 
 	return [calculate_stats_helper(comp_list), calculate_stats_helper(pop_list), calculate_stats_helper(fitness_list)]
 
-def simulated_annealing_report():
+def simulated_annealing_report(init_temp, cooling_rate, iterations_per_temp):
 	comp_list = []
 	pop_list = []
 	fitness_list = []
 	diff_sum = 0
 
 	for _ in range(NUMBER_OF_RUNS):
-		sa_init_comp, sa_init_pop, sa_init_fitness, sa_best_comp, sa_best_pop, sa_best_fitness = simulated_annealing.test(10, 0.003, 2)
+		sa_init_comp, sa_init_pop, sa_init_fitness, sa_best_comp, sa_best_pop, sa_best_fitness = simulated_annealing.test(init_temp, cooling_rate, iterations_per_temp)
 
 		comp_list.append(sa_best_comp)
 		pop_list.append(sa_best_pop)
 		fitness_list.append(sa_best_fitness)
 		diff_sum += sa_best_fitness - sa_init_fitness
+
+	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+
+def particle_swarm_report(c1, c2, c3):
+	comp_list = []
+	pop_list = []
+	fitness_list = []
+	diff_sum = 0
+
+	for _ in range(NUMBER_OF_RUNS):
+		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = particle_swarm.test(c1, c2, c3)
+				
+		comp_list.append(best_comp)
+		pop_list.append(best_pop)
+		fitness_list.append(best_fitness)
+		diff_sum += init_fitness - best_fitness
+
+	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+
+def hill_climbing_report():
+	comp_list = []
+	pop_list = []
+	fitness_list = []
+	diff_sum = 0
+
+	for _ in range(NUMBER_OF_RUNS):
+		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = hill_climbing.test()
+				
+		comp_list.append(best_comp)
+		pop_list.append(best_pop)
+		fitness_list.append(best_fitness)
+		diff_sum += init_fitness - best_fitness
 
 	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
@@ -72,18 +114,22 @@ def main():
 	report.append(header1)
 	report.append(header2)
 
-	# generate simulated annealing report
-	sa_report = simulated_annealing_report()
-	sa_row = ["Simulated Annealing"]
-	for stat in sa_report:
-		for stat_value in stat:
-			sa_row.append(stat_value)
-	report.append(sa_row)
+	# generate SA report
+	report.append(format_algo_row_data("SA", simulated_annealing_report(10, 0.003, 2)))
+
+	# generate PSO report
+	report.append(format_algo_row_data("PSO", particle_swarm_report(1, 1, 1)))
+
+	# generate hill climbing
+	report.append(format_algo_row_data("Hill Climbing", particle_swarm_report(1, 1, 1)))
 
 	# export the report to csv
-	print report
 	file_name = "test_%s_runs.csv" % (NUMBER_OF_RUNS)
 	export_csv(report, file_name)
+
+	# simulated_annealing_report(10, 0.003, 2)
+	# particle_swarm_report(1, 1, 1)
+	# hill_climbing_report()
 
 if __name__ == '__main__':
     main()
