@@ -27,10 +27,12 @@ def get_area(p, cells):
 
 # Array of sets, index is district, value is a set of cell ids for that district
 def get_district_map(p, solution):
-    districts = [ set([]) for d in range(0, p.num_districts) ]
-    for i, d in enumerate(solution):
-        districts[d].add(i)
-    return filter(lambda s: len(s) != 0, districts)
+    districts = {}
+    for cell,district in solution.iteritems():
+        if district not in districts:
+            districts[district] = set([])
+        districts[district].add(cell)
+    return districts
 
 def get_population(p, district):
     return reduce(lambda x, y: x + p.populations[y], district, 0)
@@ -40,14 +42,14 @@ def fitness(p, solution):
     districts = get_district_map(p, solution)
     d_compact = lambda d: get_perimeter(p,d)**2 / float(get_area(p,d))
     d_pop = lambda d: abs(get_population(p,d) - (p.total_population / float(p.num_districts)))
-    return -reduce(lambda f, d: f + d_compact(d) + 2*d_pop(d), districts, 0)
+    return -reduce(lambda f, d: f + d_compact(d) + 2*d_pop(d), districts.values(), 0)
 
 # Determine neighbors by moving a cell from one district to another
 # without causing any discontinuities
 def solution_neighborhood(p,solution):
     districts = get_district_map(p,solution)
     neighborhood = []
-    for (cell, district) in enumerate(solution):
+    for cell,district in solution.iteritems():
         if not is_contiguous_without_cell(p,districts[district], cell):
             continue
         for (border_cell, _) in p.borders[cell]:
@@ -89,5 +91,3 @@ def is_contiguous_without_cell(p,district, cell_to_skip):
                     floodfill(neighbor)
     floodfill(random_cell)
     return len(cells_to_check) == 0;
-
-

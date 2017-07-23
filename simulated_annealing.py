@@ -3,12 +3,14 @@ import copy
 import math
 import random
 
-from grid_problem import *
+# from grid_problem import *
+from iowa_problem import *
+
 from utils import *
 
 program_start = time.time()
 
-p = GridProblem()
+p = Problem()
 
 MAX_ITERATIONS = 10000
 INITIAL_TEMPERATURE = 10
@@ -22,7 +24,7 @@ stopping_condition = lambda: should_stop or cur_temperature < 1
 initial_solution = p.generate_initial_solution()
 initial_fitness = fitness(p, initial_solution)
 cur_solution = initial_solution
-cur_fitness = initial_fitness 
+cur_fitness = initial_fitness
 best_solution = cur_solution
 best_fitness = cur_fitness
 should_stop = False
