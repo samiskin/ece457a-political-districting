@@ -7,6 +7,8 @@ AREA_KEY = 'AREA'
 NAME_KEY = 'NAME'
 POPULATION_KEY = 'POPULATION'
 COORDINATES_KEY = 'COORDINATES'
+WIDTH_KEY = 'WIDTH'
+HEIGHT_KEY = 'HEIGHT'
 NEIGHBOURS_KEY = "NEIGHBOURS"
 PERIMETER_KEY = "PERIMETER"
 
@@ -84,6 +86,8 @@ class Data:
                 coordinates = self.get_coordinates(shape.bbox)
                 self.map[state][county][COORDINATES_KEY] = coordinates
                 self.map[state][county][PERIMETER_KEY] = self.get_perimeter(coordinates)
+                self.map[state][county][WIDTH_KEY] = self.get_width(coordinates)
+                self.map[state][county][HEIGHT_KEY] = self.get_height(coordinates)
 
                 self.counties.add(county)
 
@@ -215,6 +219,12 @@ class Data:
             (top_right_x, bottom_left_y),   # BOTTOM_RIGHT
             (top_right_x, top_right_y),     # TOP_RIGHT
         ]
+
+    def get_width(self, coordinates):
+        return abs(coordinates[TOP_LEFT][X] - coordinates[TOP_RIGHT][X])
+
+    def get_height(self, coordinates):
+        return abs(coordinates[TOP_LEFT][Y] - coordinates[BOTTOM_LEFT][Y])
 
     def get_state_name(self, record):
         return us.states.lookup(record[STATEFP]).name
