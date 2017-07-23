@@ -2,6 +2,7 @@ from __future__ import print_function
 import math
 import random
 from data.reader import *
+from data.visualizer import *
 from utils import get_district_map
 
 W = 6
@@ -10,17 +11,15 @@ NUM_DISTRICTS = 4
 
 def print_solution(p, solution):
     districts = get_district_map(p, solution)
-    for district in districts.keys():
-        print("DISTRICT: " + str(district))
-        print(districts[district])
+    visualizer = Visualizer(p.data, districts)
 
 class Problem:
     def __init__(self):
         self.num_districts = NUM_DISTRICTS
 
-        data = Data()
+        self.data = Data()
 
-        self.cell_ids = data.map['Iowa'].keys() # [ id_1, id_2, ...]
+        self.cell_ids = self.data.map['Iowa'].keys() # [ id_1, id_2, ...]
 
         self.populations = {} # { id => pop }
         self.areas = {} # { id => area }
@@ -28,7 +27,7 @@ class Problem:
         self.total_population = 0
 
         for cell_id in self.cell_ids:
-            cell_data = data.map['Iowa'][cell_id]
+            cell_data = self.data.map['Iowa'][cell_id]
             self.populations[cell_id] = int(cell_data[POPULATION_KEY])
             self.total_population = self.total_population + int(cell_data[POPULATION_KEY])
             self.areas[cell_id] = float(cell_data[AREA_KEY])
