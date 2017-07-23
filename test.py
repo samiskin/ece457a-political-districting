@@ -1,8 +1,18 @@
 from numpy import *
 
 import simulated_annealing 
+import csv
 
 NUMBER_OF_RUNS = 2
+
+# @list: headers
+# @list of lists: data
+# @string: file_name
+def export_csv(headers, data, file_name):
+	with open(file_name, "wb") as output:
+	    writer = csv.writer(output, lineterminator='\n')
+	    writer.writerows([headers])
+	    writer.writerows(data)
 
 def simulated_annealing_test():
 	comp_list = []
@@ -40,5 +50,4 @@ def simulated_annealing_test():
 	print diff_sum/NUMBER_OF_RUNS
 
 simulated_annealing_test()
-
 
