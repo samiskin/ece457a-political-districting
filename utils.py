@@ -64,7 +64,7 @@ def solution_neighborhood_for_tabu(p,solution):
     districts = get_district_map(p,solution)
     changed_gu_to_neighborhood = {}
 
-    for (cell, district) in enumerate(solution):
+    for (cell, district) in solution.iteritems():
         if not is_contiguous_without_cell(p,districts[district], cell):
             continue
         for (border_cell, _) in p.borders[cell]:

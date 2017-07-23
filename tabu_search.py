@@ -7,7 +7,7 @@ from utils import *
 
 program_start = time.time()
 
-p = GridProblem()
+p = Problem()
 
 MAX_ITERATIONS = 10000
 TABU_TENURE = 5 #
