@@ -9,7 +9,7 @@ W = 6
 H = 6
 NUM_DISTRICTS = 5
 
-VISUALIZE = True
+VISUALIZE = False
 
 def print_solution(p, solution):
     districts = get_district_map(p, solution)

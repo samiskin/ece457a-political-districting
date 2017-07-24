@@ -2,8 +2,8 @@ import time
 import math
 import random
 
-from grid_problem import *
-# from iowa_problem import *
+# from grid_problem import *
+from iowa_problem import *
 from utils import *
 
 W = 6
