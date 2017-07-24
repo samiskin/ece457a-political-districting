@@ -2,11 +2,11 @@ from __future__ import print_function
 import math
 import random
 
-W = 6
-H = 6
-NUM_DISTRICTS = 4
+W = 4
+H = 4
+NUM_DISTRICTS = 2
 
-FONT_COLORS = [ 31, 32, 33, 34, 35, 36, 37, 90 ]
+FONT_COLORS = [ 31, 34, 33, 32, 35, 36, 37, 90 ]
 FILL_COLORS = [ 7, 40, 41, 42, 44, 45, 46, 47, 100, 101, 103, 104, 105 ]
 
 # COLORS = FONT_COLORS + FILL_COLORS
@@ -19,6 +19,18 @@ def print_solution(p, solution):
     for y in range(H):
         for x in range(W):
             print('\033[{}m{:5}\033[0m'.format(COLORS[solution[toI(x,y)]], p.populations[toI(x,y)]), end='')
+        print('\n')
+
+def print_tenure_table(p, tenure_table):
+    if len(tenure_table) != 2:
+        return
+
+    for x in range(H):
+        for y in range(W):
+            print('\033[{}m{:5}\033[0m'.format(31, tenure_table[0][toI(y,x)]), end='')
+        print("\t|", end='')
+        for y in range(W):
+            print('\033[{}m{:5}\033[0m'.format(34, tenure_table[1][toI(y,x)]), end='')
         print('\n')
 
 def get_cell_borders(i):

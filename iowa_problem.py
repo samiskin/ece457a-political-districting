@@ -23,6 +23,9 @@ def print_solution(p, solution):
             print("DISTRICT: " + str(district) + ", POPULATION: " + str(sum([p.populations[cell] for cell in districts[district]])))
             print(districts[district])
 
+def print_tenure_table(p, tenure_table):
+    return
+
 class Problem:
     def __init__(self):
         self.num_districts = NUM_DISTRICTS
