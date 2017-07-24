@@ -8,34 +8,47 @@ import tabu_search
 import csv
 
 NUMBER_OF_RUNS = 2
+DEBUG = False
 
 # @list: headers
 # @list of lists: data
 # @string: file_name
-def export_csv(headers, data, file_name):
+def export_csv(data, file_name):
 	with open(file_name, "wb") as output:
 	    writer = csv.writer(output, lineterminator='\n')
-	    writer.writerows([headers])
 	    writer.writerows(data)
+
+def format_algo_row_data(algo_name, report):
+	row = [algo_name]
+	for stat in report:
+		for stat_value in stat:
+			row.append(stat_value)
+	return row
+
 # @list: data
 def calculate_stats_helper(data):
-	print "min:", amin(data)
-	print "max:", amax(data)
-	print "median:", median(data)
-	print "stdev:", std(data)
-	return (amin(data), amax(data), median(data), std(data))
+	if DEBUG:
+		print "min:", amin(data)
+		print "max:", amax(data)
+		print "median:", median(data)
+		print "stdev:", std(data)
+	
+	return [amin(data), amax(data), median(data), std(data)]
 
 def calculate_stats(comp_list, pop_list, fitness_list, diff_sum):
-	print "COMP:"
-	calculate_stats_helper(comp_list)
-	print "POP EQ:"
-	calculate_stats_helper(pop_list)
-	print "FITNESS:" 
-	calculate_stats_helper(fitness_list)
-	print "AVG DIFF IN FITNESS:"
-	print diff_sum/NUMBER_OF_RUNS
+	if DEBUG:
+		print "COMP:"
+		calculate_stats_helper(comp_list)
+		print "POP EQ:"
+		calculate_stats_helper(pop_list)
+		print "FITNESS:" 
+		calculate_stats_helper(fitness_list)
+		print "AVG DIFF IN FITNESS:"
+		print diff_sum/NUMBER_OF_RUNS
 
-def simulated_annealing_test(init_temp, cooling_rate, iterations_per_temp):
+	return [calculate_stats_helper(comp_list), calculate_stats_helper(pop_list), calculate_stats_helper(fitness_list)]
+
+def simulated_annealing_report(init_temp, cooling_rate, iterations_per_temp):
 	comp_list = []
 	pop_list = []
 	fitness_list = []
@@ -49,7 +62,7 @@ def simulated_annealing_test(init_temp, cooling_rate, iterations_per_temp):
 		fitness_list.append(sa_best_fitness)
 		diff_sum += sa_best_fitness - sa_init_fitness
 
-	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
 def particle_swarm_report(c1, c2, c3):
 	comp_list = []
@@ -65,7 +78,7 @@ def particle_swarm_report(c1, c2, c3):
 		fitness_list.append(best_fitness)
 		diff_sum += init_fitness - best_fitness
 
-	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
 def hill_climbing_report():
 	comp_list = []
@@ -81,7 +94,7 @@ def hill_climbing_report():
 		fitness_list.append(best_fitness)
 		diff_sum += init_fitness - best_fitness
 
-	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
 def tabu_search_report(tenure):
 	comp_list = []
@@ -100,7 +113,41 @@ def tabu_search_report(tenure):
 	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
 def main():
-	# simulated_annealing_test(10, 0.003, 2)
+	report = []
+
+	# generate headers
+	criteria = ["Compactness", "Population Equality", "Fitness"]
+	criteria_stats = ["min", "max", "median", "standard deviation"]
+
+	header1 = [""]
+	header2 = ["Algorithm"]
+	for i in range(len(criteria)):
+		for j in range(len(criteria_stats)):
+			if j == 0:
+				header1.append(criteria[i])
+			else:
+				header1.append("")
+			header2.append(criteria_stats[j])
+	report.append(header1)
+	report.append(header2)
+
+	# generate SA report
+	# parameters to tune: init temp, cooling rate, iterations per temp
+	report.append(format_algo_row_data("SA", simulated_annealing_report(10, 0.003, 2)))
+
+	# generate PSO report
+	# parameters to tune: c1, c2, c3
+	report.append(format_algo_row_data("PSO", particle_swarm_report(1, 1, 1)))
+
+	# generate hill climbing
+	# no parameters to tune
+	report.append(format_algo_row_data("Hill Climbing", hill_climbing_report()))
+
+	# export the report to csv
+	file_name = "test_%s_runs.csv" % (NUMBER_OF_RUNS)
+	export_csv(report, file_name)
+
+	# simulated_annealing_report(10, 0.003, 2)
 	# particle_swarm_report(1, 1, 1)
 	# hill_climbing_report()
 	tabu_search_report(5)
