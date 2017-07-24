@@ -2,3 +2,4 @@ us==0.9.1
 pyshp
 termcolor
 numpy
+matplotlib

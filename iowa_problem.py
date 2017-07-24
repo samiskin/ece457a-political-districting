@@ -7,17 +7,20 @@ from utils import get_district_map
 
 W = 6
 H = 6
-NUM_DISTRICTS = 4
+NUM_DISTRICTS = 5
 
-VISUALIZE = False
+VISUALIZE = True
 
 def print_solution(p, solution):
     districts = get_district_map(p, solution)
     if VISUALIZE:
+        for district in districts.keys():
+            print("DISTRICT: " + str(district) + ", POPULATION: " + str(sum([p.populations[cell] for cell in districts[district]])))
+            # print(districts[district])
         visualizer = Visualizer(p.data, districts)
     else:
         for district in districts.keys():
-            print("DISTRICT: " + str(district))
+            print("DISTRICT: " + str(district) + ", POPULATION: " + str(sum([p.populations[cell] for cell in districts[district]])))
             print(districts[district])
 
 class Problem:
