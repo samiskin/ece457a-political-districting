@@ -2,8 +2,14 @@ import time
 import math
 import random
 
-from grid_problem import *
+# from grid_problem import *
+from iowa_problem import *
 from utils import *
+
+W = 6
+H = 6
+
+IOWA_CELL_MAX_ID = 20000
 
 def main():
 	program_start = time.time()
@@ -25,7 +31,7 @@ def main():
 
 	# width: districts
 	# height: geographical units
-	tenure_table = [[0 for x in range(len(p.areas))] for y in range(p.num_districts)]
+	tenure_table = [[0 for x in range(IOWA_CELL_MAX_ID)] for y in range(p.num_districts)]
 
 	while True: # UNTIL STOPPING CONDITION IS MET
 		# generate the set of all feasible moves producing the corresponding
@@ -62,7 +68,7 @@ def main():
 		# update tabu tenure list
 		# decrease all other values by 1
 		for x in range(p.num_districts):
-			for y in range(len(p.areas)):
+			for y in range(IOWA_CELL_MAX_ID):
 				tenure_table[x][y] = tenure_table[x][y] - 1
 				if tenure_table[x][y] < 0:
 					tenure_table[x][y] = 0
@@ -99,7 +105,7 @@ def test(tenure):
 
 	# width: districts
 	# height: geographical units
-	tenure_table = [[0 for x in range(len(p.areas))] for y in range(p.num_districts)]
+	tenure_table = [[0 for x in range(IOWA_CELL_MAX_ID)] for y in range(p.num_districts)]
 
 	while True: # UNTIL STOPPING CONDITION IS MET
 		# generate the set of all feasible moves producing the corresponding
@@ -141,7 +147,7 @@ def test(tenure):
 		# update tabu tenure list
 		# decrease all other values by 1
 		for x in range(p.num_districts):
-			for y in range(len(p.areas)):
+			for y in range(IOWA_CELL_MAX_ID):
 				tenure_table[x][y] = tenure_table[x][y] - 1
 				if tenure_table[x][y] < 0:
 					tenure_table[x][y] = 0

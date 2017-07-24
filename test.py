@@ -3,6 +3,7 @@ from numpy import *
 import simulated_annealing 
 import particle_swarm
 import hill_climbing 
+import tabu_search
 
 import csv
 
@@ -82,11 +83,28 @@ def hill_climbing_report():
 
 	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
+def tabu_search_report(tenure):
+	comp_list = []
+	pop_list = []
+	fitness_list = []
+	diff_sum = 0
+
+	for _ in range(NUMBER_OF_RUNS):
+		init_comp, init_pop, init_fitness, best_comp, best_pop, best_fitness = tabu_search.test(tenure)
+				
+		comp_list.append(best_comp)
+		pop_list.append(best_pop)
+		fitness_list.append(best_fitness)
+		diff_sum += init_fitness - best_fitness
+
+	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+
 def main():
 	# simulated_annealing_test(10, 0.003, 2)
 	# particle_swarm_report(1, 1, 1)
 	# hill_climbing_report()
-
+	tabu_search_report(5)
+	
 if __name__ == '__main__':
     main()
 
