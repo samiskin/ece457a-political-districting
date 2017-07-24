@@ -115,13 +115,16 @@ def main():
 	report.append(header2)
 
 	# generate SA report
+	# parameters to tune: init temp, cooling rate, iterations per temp
 	report.append(format_algo_row_data("SA", simulated_annealing_report(10, 0.003, 2)))
 
 	# generate PSO report
+	# parameters to tune: c1, c2, c3
 	report.append(format_algo_row_data("PSO", particle_swarm_report(1, 1, 1)))
 
 	# generate hill climbing
-	report.append(format_algo_row_data("Hill Climbing", particle_swarm_report(1, 1, 1)))
+	# no parameters to tune
+	report.append(format_algo_row_data("Hill Climbing", hill_climbing_report()))
 
 	# export the report to csv
 	file_name = "test_%s_runs.csv" % (NUMBER_OF_RUNS)
