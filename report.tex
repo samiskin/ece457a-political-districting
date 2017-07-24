@@ -109,13 +109,34 @@ The algorithm does not stop in the first two iterations since the stopping condi
 
 
 \section{Performance Evaluation}
-Hello
 % Establish a set of evaluation metrics and run some experiments with different
 % values of algorithm parameters to quantitatively and qualitatively assess the
 % performance of the developed solution using different meta-heuristic
 % optimization techniques. Students must identify the pros and cons of each
 % technique and assess the quality of work as well as its fit with project
 % objectives.
+how we did it: 
+    - python
+    - state of Iowa (real data 2010)
+    - 2, 10, 100 iterations for each algo 
+        - significant difference between 2 and 10, but small difference between 10 and 100 
+        - did 100 to get more accurate results 
+    - param tuning for PSO 
+        - changed constants C1, C2, C3 (unified intervals) 
+- SA is really bad compared to other algos for all: comp, pop, and overall fitness 
+- other 3 algos perform similarily for comp, best is PSO 
+- other 3 algos performance for pop: 
+    - hill climbing is good for average cases, but bad for certain edge cases (stuck in local minima)
+    - tabu search performs best 
+- overall fitness 
+    - similar to performance for pop 
+
+points to consider if had more time:
+- only tested on 1 region (Iowa) 
+- only did 100 iterations 
+    - minor diffs in 100 iteration results compares to 10 iteration results 
+- more param tuning could be done 
+    - could give different results, some algos could have done better 
 
 \begin{table}[!h]
 \centering
