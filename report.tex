@@ -144,7 +144,7 @@ For each algorithm, the results for each run was recorded. With this data, the m
     \label{fig:compactness_results}
 \end{figure}
 
-Since our results show the values of cost functions, the lower the value, the better the solution is. Based on the numbers in Table \ref{tab:comp_100iter} as well as Figure \ref{fig:compactness_results}, it is evident that Simulated Annealing had the most unfavourable compactness results by a significant amount. The other 3 algorithms had similar performance in regards to compactness, but based on our results, PSO generally performed the best, followed by Hill Climbing and then Tabu Search. 
+Since our results show the values of cost functions, the lower the value, the better the solution is. Based on the numbers in Table \ref{tab:comp_100iter} as well as Figure \ref{fig:compactness_results}, it is evident that simulated annealing had the most unfavourable compactness results by a significant amount. The other 3 algorithms had similar performance in regards to compactness, but based on our results, PSO generally performed the best, followed by hill climbing and then tabu search. 
 
 \subsection{Population Equality Results}
 
@@ -162,7 +162,7 @@ Since our results show the values of cost functions, the lower the value, the be
 \end{tabular}
 \end{table}
 
-Since the Simulated Annealing solution had significantly poorer values for population equality as seen in Table \ref{tab:pop_100iter}, they have been excluded in the corresponding graph representation below to better visualize the other algorithm results.
+Since the simulated annealing solution had significantly poorer values for population equality as seen in Table \ref{tab:pop_100iter}, they have been excluded in the corresponding graph representation below to better visualize the other algorithm results.
 
 \begin{figure}[h!]
     \includegraphics[width=8cm]{images/pop_equality_graph.png}
@@ -171,7 +171,7 @@ Since the Simulated Annealing solution had significantly poorer values for popul
     \label{fig:pop_results}
 \end{figure}
 
-Looking at Figure \ref{fig:pop_results}, we could deduce that Hill Climbing, although did relatively well in average cases based on the median value, did significantly poorer in certain edge cases as seen from the maximum value. This is most likely as a result of being stuck at a local minima. Looking at the median values, PSO did the most poorly on average, while Hill Climbing did quite a bit better, and Tabu Search performed the best. Overall, Tabu Search had the best (lowest) average population equality cost value, the least deviation, and the smallest maximum cost value. Thus, we can conclude from our results that Tabu Search performed the best in terms of population equality.
+Looking at Figure \ref{fig:pop_results}, we could deduce that hill climbing, although did relatively well in average cases based on the median value, did significantly poorer in certain edge cases as seen from the maximum value. This is most likely as a result of being stuck at a local minima. Looking at the median values, PSO did the most poorly on average, while hill climbing did quite a bit better, and tabu search performed the best. Overall, tabu search had the best (lowest) average population equality cost value, the least deviation, and the smallest maximum cost value. Thus, we can conclude from our results that tabu search performed the best in terms of population equality.
 
 \subsection{Overall Fitness Results}
 
@@ -189,7 +189,7 @@ Looking at Figure \ref{fig:pop_results}, we could deduce that Hill Climbing, alt
 \end{tabular}
 \end{table}
 
-Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that Simulated Annealing performed significantly worse in comparison to the other 3 algorithms, so it has again been excluded in this correspondin graph representation below for better visualization of the other algorithm results. 
+Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that simulated annealing performed significantly worse in comparison to the other 3 algorithms, so it has again been excluded in this correspondin graph representation below for better visualization of the other algorithm results. 
 
 \begin{figure}[h!]
     \includegraphics[width=8cm]{images/fitness_graph.png}
@@ -198,7 +198,7 @@ Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that Sim
     \label{fig:fitness_results}
 \end{figure}
 
-Figure \ref{fig:fitness_results} shows the results for the overall fitness costs for the algorithms we tested, excluding Simulated Annealing. The conclusions that can be made are similar to that of the results for population equality. Hill Climbing appeared to work well on average cases, but did significantly poorly in certain edge cases. PSO performed the worst on average, looking at the median values. Tabu Search again performed the best on average cases (it has the lowest median value), had the lowest maximum cost, and the lowest deviation. Based on these results, it can be concluded that for the Iowa state dataset of 2010, Tabu Search would give the best performance for the Political Districting problem. 
+Figure \ref{fig:fitness_results} shows the results for the overall fitness costs for the algorithms we tested, excluding simulated annealing. The conclusions that can be made are similar to that of the results for population equality. Hill Climbing appeared to work well on average cases, but did significantly poorly in certain edge cases. PSO performed the worst on average, looking at the median values. Tabu Search again performed the best on average cases (it has the lowest median value), had the lowest maximum cost, and the lowest deviation. Based on these results, it can be concluded that for the Iowa state dataset of 2010, tabu search would give the best performance for the Political Districting problem. 
 
 Given more time, we would have further tuned the parameters for each algorithm. Doing so would allow us to compare the optimal solutions that each algorithm produces. This would give us more accurate insights into which algorithm produces the best results based on the multicriteria. Running a large number of iterations for certain algorithms was very costly in time and caused us to too run at most 100 iterations for all algorithms. In the previous papers we found while researching, we found that the number of iterations done in the different experiments varied from 30 iterations\cite{local-search-2} to 20,000 iterations\cite{geometric-ga}. Similar to the paper that ran 30 iterations, we ran multiple algorithms thus we used this as justification that 100 iterations would be a reasonable amount. Since we also observed that there was minor differences in results between running 10 and 100 iterations, we also used this to justify our choice of number of iterations.
 
