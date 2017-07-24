@@ -2,8 +2,8 @@ import time
 import math
 import random
 
-# from grid_problem import *
-from iowa_problem import *
+from grid_problem import *
+# from iowa_problem import *
 from utils import *
 
 W = 6
@@ -24,14 +24,20 @@ def main():
 	best_solution = cur_solution
 	initial_fitness = fitness(p, cur_solution)
 	best_fitness = initial_fitness
-
-	print('-----  Initial (Cost: {})  -----'.format(-initial_fitness))
-	print_solution(p, initial_solution)
-	print('\n')
+	cur_fitness = initial_fitness
 
 	# width: districts
 	# height: geographical units
 	tenure_table = [[0 for x in range(IOWA_CELL_MAX_ID)] for y in range(p.num_districts)]
+
+	def print_tick():
+		print('-----  Cost: {}  -----'.format(round(-cur_fitness, 1)))
+		print
+		print_solution(p, cur_solution)
+		print('----------------------------------------------')
+		print_tenure_table(p, tenure_table)
+
+	print_tick()
 
 	while True: # UNTIL STOPPING CONDITION IS MET
 		# generate the set of all feasible moves producing the corresponding
@@ -43,9 +49,10 @@ def main():
 
 		cur_fitness = fitness(p, cur_solution)
 		did_cur_change = False 
-		for cur_changed_cell_info, neighbor in changed_gus_to_neighborhood.iteritems():
+		cur_changed_cell_info = []
+		for neighbour_changed_info, neighbor in changed_gus_to_neighborhood.iteritems():
 			# look up if cell that was change is not tabu (i.e. tenure is 0)
-			cell, old_district, new_district = cur_changed_cell_info
+			cell, old_district, new_district = neighbour_changed_info
 			tenure = tenure_table[new_district][cell]
 			if tenure  > 0:
 				continue
@@ -57,6 +64,7 @@ def main():
 			cur_fitness = fitness(p, neighbor)
 			cur_solution = neighbor
 			did_cur_change = True
+			cur_changed_cell_info = neighbour_changed_info
 
 		if not did_cur_change:
 			break
@@ -75,6 +83,7 @@ def main():
 
 		# cell that was moved gets new tenure value
 		tenure_table[cur_changed_cell_info[2]][cur_changed_cell_info[0]] = TABU_TENURE
+		print_tick()
 
 	print('-----   Final (Cost: {})   -----'.format(-best_fitness))
 	print_solution(p, best_solution)
@@ -119,9 +128,10 @@ def test(tenure):
 		cur_fitness_details = fitness_details(p, cur_solution)
 
 		did_cur_change = False 
-		for cur_changed_cell_info, neighbor in changed_gus_to_neighborhood.iteritems():
+		cur_changed_cell_info = []
+		for neighbour_changed_info, neighbor in changed_gus_to_neighborhood.iteritems():
 			# look up if cell that was change is not tabu (i.e. tenure is 0)
-			cell, old_district, new_district = cur_changed_cell_info
+			cell, old_district, new_district = neighbour_changed_info
 			tenure = tenure_table[new_district][cell]
 			if tenure  > 0:
 				continue
@@ -135,6 +145,7 @@ def test(tenure):
 
 			cur_solution = neighbor
 			did_cur_change = True
+			cur_changed_cell_info = neighbour_changed_info
 
 		if not did_cur_change:
 			break
