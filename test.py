@@ -110,7 +110,7 @@ def tabu_search_report(tenure):
 		fitness_list.append(best_fitness)
 		diff_sum += init_fitness - best_fitness
 
-	calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
+	return calculate_stats(comp_list, pop_list, fitness_list, diff_sum)
 
 def main():
 	report = []
@@ -143,6 +143,10 @@ def main():
 	# no parameters to tune
 	report.append(format_algo_row_data("Hill Climbing", hill_climbing_report()))
 
+	# generate tabu search
+	# parameters to tune: tenure
+	report.append(format_algo_row_data("Tabu Search", tabu_search_report(5)))
+
 	# export the report to csv
 	file_name = "test_%s_runs.csv" % (NUMBER_OF_RUNS)
 	export_csv(report, file_name)
@@ -150,7 +154,7 @@ def main():
 	# simulated_annealing_report(10, 0.003, 2)
 	# particle_swarm_report(1, 1, 1)
 	# hill_climbing_report()
-	tabu_search_report(5)
+	# tabu_search_report(5)
 	
 if __name__ == '__main__':
     main()
