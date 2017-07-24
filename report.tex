@@ -119,7 +119,7 @@ The algorithm does not stop in the first two iterations since the stopping condi
 % objectives.
 
 Each algorithm was implemented in Python and tests were run on real data for the state of Iowa from data provided by the U.S. government census data in 2010. For each algorithm we ran a series of tests with 2, 10 and 100 iterations with fixed parameters. The initial parameters for each algorithm were chosen at random within reason. For example, the cooling rate selected for simulated annealing was 0.003. Selecting a faster cooling rate would cause the algorithm to converge to a solution more quickly, which is undesirable.
-For each algorithm, the results for each run was recorded. With this data, the minimum, maximum, median and standard deviation were computed for each of the evaluation criteria (i.e. compactness, population equality and overall fitness). These criteria were calculated as discussed in Section \ref{sec:proposed_solution} (Proposed Solution). We assumed that all our solutions met the contiguity criteria since this was a hard constraint implemented in each algorithm (i.e. moves or operations were not selected if they resulted in discontinuities). The statistics for each algorithm were then exported to a csv file and graphed, which can be viewed in the tables and figures below.
+For each algorithm, the results for each run was recorded. With this data, the minimum, maximum, median and standard deviation were computed for each of the evaluation criteria: compactness, population equality and overall fitness. These criteria were calculated as discussed in Section \ref{sec:proposed_solution} (Proposed Solution). We assumed that all our solutions met the contiguity criteria since this was a hard constraint implemented in each algorithm (i.e. moves or operations were not selected if they resulted in discontinuities). The statistics for each algorithm were then exported to a csv file and graphed, which can be viewed in the tables and figures below.
 
 \subsection{Compactness Results}
 
@@ -200,8 +200,7 @@ Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that Sim
 
 Figure \ref{fig:fitness_results} shows the results for the overall fitness costs for the algorithms we tested, excluding Simulated Annealing. The conclusions that can be made are similar to that of the results for population equality. Hill Climbing appeared to work well on average cases, but did significantly poorly in certain edge cases. PSO performed the worst on average, looking at the median values. Tabu Search again performed the best on average cases (it has the lowest median value), had the lowest maximum cost, and the lowest deviation. Based on these results, it can be concluded that for the Iowa state dataset of 2010, Tabu Search would give the best performance for the Political Districting problem. 
 
-Given more time, we would have further tuned the parameters for each algorithm. Doing so would allow us to compare the optimal solutions that each algorithm produces. This would give us more accurate insights into which algorithm produces the best results based on the multicriteria. Running a large number of iterations for certain algorithms was very costly in time and caused us to too run at most 100 iterations for all algorithms. In the previous papers we found while researching, we found that the number of iterations done in the different experiments varied from 30 iterations\cite{local-search-2} to 20,000 iterations\cite{geometric-ga}. Similar to the paper that ran 30 iterations, we ran multiple algorithms thus we used this as justification that 100 iterations would be a reasonable amount. Since we also observed that there was minor differences in results between running 10 and 100 iterations, we also used this to justify our choice of number of iterations.
-
+Given more time, we would have further tuned the parameters for each algorithm. Doing so would allow us to compare the optimal solutions that each algorithm produces. This would give us more accurate insights into which algorithm produces the best results based on the criteria. Running a large number of iterations for certain algorithms was very costly in time and limited us to run at most 100 iterations for each algorithm. In the previous papers we found while researching, we found that the number of iterations done in the different experiments varied from 30 iterations\cite{local-search-2} to 20,000 iterations\cite{geometric-ga}. To justify a reasonable accuracy with 100 iterations, we compared the results between running 10 and 100 iterations, and confirmed that the results were relatively similar. 
 
 \section{Conclusions \& Recommendations}
 % Summarize the conclusion and future improvement. Explain how did you solve the
@@ -209,7 +208,6 @@ Given more time, we would have further tuned the parameters for each algorithm. 
 % the proposed solution? You may organize ideas using lists or numbered points,
 % if appropriate, but avoid making your report into a check-list or a series of
 % encrypted notes 
-
 
 
 \begin{thebibliography}{1}
