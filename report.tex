@@ -84,12 +84,12 @@ The input will be represented as a grid of cells, where each cell shares a borde
 The population of each cell will be assumed to be 1 for simplicity, and the solution will be a grouping of cells such that there are exactly two groups that represent two districts. \\
 
 \subsubsection{Simulated Annealing}~\\\\
-\begin{figure}[h!]
-    \includegraphics[width=3cm]{sa.png}
-    \centering
-    \label{fig:sa_example}
-    \caption{Example run using Simulated Annealing}
-\end{figure}
+% \begin{figure}[h!]
+%     \includegraphics[width=3cm]{sa.png}
+%     \centering
+%     \label{fig:sa_example}
+%     \caption{Example run using Simulated Annealing}
+% \end{figure}
 Figure \ref{fig:sa_example} shows the first two iterations of the SA implementation.
 We start with a randomly generated initial solution of two districts with a fitness cost of 19.3 (calculated using the previously defined cost function).
 
@@ -100,21 +100,64 @@ The algorithm will randomly pick one of these neighbors, and will choose it as t
 The algorithm does not stop in the first two iterations since the stopping conditions have not been met. Since the temperature is quite high in the beginning, the first two iterations also end up accepting solutions that have a worse fitness than the previous solution. \\
 
 \subsubsection{Tabu Search}~\\\\
-\begin{figure}[h!]
-    \includegraphics[width=3cm]{sa.png}
-    \centering
-    \label{fig:sa_example}
-    \caption{Example run using Tabu Search}
-\end{figure}
+% \begin{figure}[h!]
+%     \includegraphics[width=3cm]{sa.png}
+%     \centering
+%     \label{fig:sa_example}
+%     \caption{Example run using Tabu Search}
+% \end{figure}
 
 
 \section{Performance Evaluation}
+Hello
 % Establish a set of evaluation metrics and run some experiments with different
 % values of algorithm parameters to quantitatively and qualitatively assess the
 % performance of the developed solution using different meta-heuristic
 % optimization techniques. Students must identify the pros and cons of each
 % technique and assess the quality of work as well as its fit with project
 % objectives.
+
+\begin{table}[!h]
+\centering
+\caption{Compactness Results for 100 Iterations}
+\label{comp_100iter}
+\begin{tabular}{l|llll}
+                       & \multicolumn{4}{l}{\textbf{Compactness}}                      \\ \hline
+\textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
+\textbf{SA}            & 19.255       & 587.016      & 495.146         & 244.594       \\
+\textbf{PSO}           & 57.213       & 229.580      & 109.956         & 33.041         \\
+\textbf{Hill Climbing} & 52.983       & 264.8        & 122.061         & 41.088         \\
+\textbf{Tabu Search}   & 66.946       & 257.239      & 127.855         & 39.242            
+\end{tabular}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\caption{Population Equality Results for 100 Iterations}
+\label{pop_100iter}
+\begin{tabular}{l|llll}
+                       & \multicolumn{4}{l}{\textbf{Population Equality}}             \\ \hline
+\textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
+\textbf{SA}            & 1841655      & 4648349.5    & 3098654         & 787073.096         \\
+\textbf{PSO}           & 2463         & 94699        & 32829.25        & 15648.72           \\
+\textbf{Hill Climbing} & 1749         & 218283       & 9859.75         & 28231.930        \\
+\textbf{Tabu Search}   & 36195.5      & 9319.25         & 5647.456       & 5315.779     
+\end{tabular}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\caption{Overall Fitness Results for 100 Iterations}
+\label{fitness_100iter}
+\begin{tabular}{l|llll}
+                       & \multicolumn{4}{l}{\textbf{Fitness}}                          \\ \hline
+\textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
+\textbf{SA}            & 3683810.325  & 9296718.255  & 6197845.196     & 1573915.146    \\
+\textbf{PSO}           & 5082.820     & 189513.077   & 65748.985       & 31296.346      \\
+\textbf{Hill Climbing} & 3644.275     & 436675.159   & 19839.867       & 56463.519      \\
+\textbf{Tabu Search}   & 5315.779     & 72478.096    & 18799.833       & 11289.642     
+\end{tabular}
+\end{table}
 
 \section{Conclusions \& Recommendations}
 % Summarize the conclusion and future improvement. Explain how did you solve the
