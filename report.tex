@@ -50,6 +50,8 @@ x_{ij} = 1 \text{ or } 0\\
 
 
 \section{Proposed Solution}
+\label{sec:proposed_solution}
+
 \subsection{Initial Solution}
 % Generate an initial solution.
 \subsection{Cost Function}
@@ -115,55 +117,16 @@ The algorithm does not stop in the first two iterations since the stopping condi
 % optimization techniques. Students must identify the pros and cons of each
 % technique and assess the quality of work as well as its fit with project
 % objectives.
-how we did it: 
-    - python
-    - state of Iowa (real data 2010)
-    - 2, 10, 100 iterations for each algo 
-        - significant difference between 2 and 10, but small difference between 10 and 100 
-        - did 100 to get more accurate results 
-    - param tuning for PSO 
-        - changed constants C1, C2, C3 (unified intervals) 
 
-\begin{figure}[h!]
-    \includegraphics[width=8cm]{images/compactness_graph.png}
-    \centering
-    \label{fig:compactness_results}
-    \caption{Compactness Results for 100 Iterations on Iowa}
-\end{figure}
+Each algorithm was implemented in Python and tests were run on real data for the state of Iowa from data provided by the U.S. government census data in 2010. For each algorithm we ran a series of tests with 2, 10 and 100 iterations with fixed parameters. The initial parameters for each algorithm were chosen at random within reason. For example, the cooling rate selected for simulated annealing was 0.003. Selecting a faster cooling rate would cause the algorithm to converge to a solution more quickly, which is undesirable.
+For each algorithm, the results for each run was recorded. With this data, the minimum, maximum, median and standard deviation were computed for each of the evaluation criteria (i.e. compactness, population equality and overall fitness). These criteria were calculated as discussed in Section \ref{sec:proposed_solution} (Proposed Solution). We assumed that all our solutions met the contiguity criteria since this was a hard constraint implemented in each algorithm (i.e. moves or operations were not selected if they resulted in discontinuities). The statistics for each algorithm were then exported to a csv file and graphed, which can be viewed in the tables and figures below.
 
-\begin{figure}[h!]
-    \includegraphics[width=8cm]{images/pop_equality_graph.png}
-    \centering
-    \label{fig:pop_results}
-    \caption{Population Equality Results for 100 Iterations on Iowa (excluding SA)}
-\end{figure}
-
-\begin{figure}[h!]
-    \includegraphics[width=8cm]{images/fitness_graph.png}
-    \centering
-    \label{fig:fitness_results}
-    \caption{Overall Fitness Results for 100 Iterations on Iowa (excluding SA)}
-\end{figure}
-
-- SA is really bad compared to other algos for all: comp, pop, and overall fitness 
-- other 3 algos perform similarily for comp, best is PSO 
-- other 3 algos performance for pop: 
-    - hill climbing is good for average cases, but bad for certain edge cases (stuck in local minima)
-    - tabu search performs best 
-- overall fitness 
-    - similar to performance for pop 
-
-points to consider if had more time:
-- only tested on 1 region (Iowa) 
-- only did 100 iterations 
-    - minor diffs in 100 iteration results compares to 10 iteration results 
-- more param tuning could be done 
-    - could give different results, some algos could have done better 
+\subsection{Compactness Results}
 
 \begin{table}[!h]
 \centering
-\caption{Compactness Results for 100 Iterations}
-\label{comp_100iter}
+\caption{Compactness Results for 100 Iterations on Iowa}
+\label{tab:comp_100iter}
 \begin{tabular}{l|llll}
                        & \multicolumn{4}{l}{\textbf{Compactness}}                      \\ \hline
 \textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
@@ -174,10 +137,21 @@ points to consider if had more time:
 \end{tabular}
 \end{table}
 
+\begin{figure}[h!]
+    \includegraphics[width=8cm]{images/compactness_graph.png}
+    \centering
+    \caption{Compactness Results for 100 Iterations on Iowa}
+    \label{fig:compactness_results}
+\end{figure}
+
+Since our results show the values of cost functions, the lower the value, the better the solution is. Based on the numbers in Table \ref{tab:comp_100iter} as well as Figure \ref{fig:compactness_results}, it is evident that Simulated Annealing had the most unfavourable compactness results by a significant amount. The other 3 algorithms had similar performance in regards to compactness, but based on our results, PSO generally performed the best, followed by Hill Climbing and then Tabu Search. 
+
+\subsection{Population Equality Results}
+
 \begin{table}[!h]
 \centering
-\caption{Population Equality Results for 100 Iterations}
-\label{pop_100iter}
+\caption{Population Equality Results for 100 Iterations on Iowa}
+\label{tab:pop_100iter}
 \begin{tabular}{l|llll}
                        & \multicolumn{4}{l}{\textbf{Population Equality}}             \\ \hline
 \textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
@@ -188,10 +162,23 @@ points to consider if had more time:
 \end{tabular}
 \end{table}
 
+Since the Simulated Annealing solution had significantly poorer values for population equality as seen in Table \ref{tab:pop_100iter}, they have been excluded in the corresponding graph representation below to better visualize the other algorithm results.
+
+\begin{figure}[h!]
+    \includegraphics[width=8cm]{images/pop_equality_graph.png}
+    \centering
+    \caption{Population Equality Results for 100 Iterations on Iowa (excluding SA)}
+    \label{fig:pop_results}
+\end{figure}
+
+Looking at Figure \ref{fig:pop_results}, we could deduce that Hill Climbing, although did relatively well in average cases based on the median value, did significantly poorer in certain edge cases as seen from the maximum value. This is most likely as a result of being stuck at a local minima. Looking at the median values, PSO did the most poorly on average, while Hill Climbing did quite a bit better, and Tabu Search performed the best. Overall, Tabu Search had the best (lowest) average population equality cost value, the least deviation, and the smallest maximum cost value. Thus, we can conclude from our results that Tabu Search performed the best in terms of population equality.
+
+\subsection{Overall Fitness Results}
+
 \begin{table}[!h]
 \centering
-\caption{Overall Fitness Results for 100 Iterations}
-\label{fitness_100iter}
+\caption{Overall Fitness Results for 100 Iterations on Iowa}
+\label{tab:fitness_100iter}
 \begin{tabular}{l|llll}
                        & \multicolumn{4}{l}{\textbf{Fitness}}                          \\ \hline
 \textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
@@ -201,6 +188,20 @@ points to consider if had more time:
 \textbf{Tabu Search}   & 5315.779     & 72478.096    & 18799.833       & 11289.642     
 \end{tabular}
 \end{table}
+
+Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that Simulated Annealing performed significantly worse in comparison to the other 3 algorithms, so it has again been excluded in this correspondin graph representation below for better visualization of the other algorithm results. 
+
+\begin{figure}[h!]
+    \includegraphics[width=8cm]{images/fitness_graph.png}
+    \centering
+    \caption{Overall Fitness Results for 100 Iterations on Iowa (excluding SA)}
+    \label{fig:fitness_results}
+\end{figure}
+
+Figure \ref{fig:fitness_results} shows the results for the overall fitness costs for the algorithms we tested, excluding Simulated Annealing. The conclusions that can be made are similar to that of the results for population equality. Hill Climbing appeared to work well on average cases, but did significantly poorly in certain edge cases. PSO performed the worst on average, looking at the median values. Tabu Search again performed the best on average cases (it has the lowest median value), had the lowest maximum cost, and the lowest deviation. Based on these results, it can be concluded that for the Iowa state dataset of 2010, Tabu Search would give the best performance for the Political Districting problem. 
+
+Given more time, we would have further tuned the parameters for each algorithm. Doing so would allow us to compare the optimal solutions that each algorithm produces. This would give us more accurate insights into which algorithm produces the best results based on the multicriteria. Running a large number of iterations for certain algorithms was very costly in time and caused us to too run at most 100 iterations for all algorithms. In the previous papers we found while researching, we found that the number of iterations done in the different experiments varied from 30 iterations\cite{local-search-2} to 20,000 iterations\cite{geometric-ga}. Similar to the paper that ran 30 iterations, we ran multiple algorithms thus we used this as justification that 100 iterations would be a reasonable amount. Since we also observed that there was minor differences in results between running 10 and 100 iterations, we also used this to justify our choice of number of iterations.
+
 
 \section{Conclusions \& Recommendations}
 % Summarize the conclusion and future improvement. Explain how did you solve the
@@ -230,6 +231,13 @@ Federica~Ricca et al. Weighted Voronoi region algorithms for political
 \bibitem{local-search}
     Burcin~Bozkaya et al.  A tabu search heuristic and adaptive memory procedure
         for political districting, 2003
+
+\bibitem{geometric-ga}
+    Castelli~Henriques~Vanneschi, A geometric semantic genetic programming system for the electoral redistricting problem, 2014
+
+\bibitem{local-search-2}
+    Federica~Ricca et al., Local Search Algorithms for Political Districting, 2007
+
 \end{thebibliography}
 \end{document}
 
