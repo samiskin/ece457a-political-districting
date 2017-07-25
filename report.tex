@@ -302,6 +302,38 @@ The next iteration now has a lower cost of 14.7. The chosen tract to be swapped 
  \\
 
 \subsubsection{PSO}~\\
+\begin{figure}[h!]
+    \includegraphics[width=3cm]{pso1.png}
+    \centering
+    \caption{Example PSO particle, personal best, and global best}
+        \label{fig:pso_1}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=3cm]{pso2.png}
+    \centering
+    \caption{Example random velocity}
+        \label{fig:pso_2}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=4cm]{pso3.png}
+    \centering
+    \caption{Swaps to get from (X + Velocity) to Personal Best}
+        \label{fig:pso_3}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=6cm]{pso4.png}
+    \centering
+    \caption{Swaps to get from (X + Velocity + Pbest) to Global Best}
+        \label{fig:pso_4}
+\end{figure}
+
+Figure \ref{fig:pso_1} is an example of a particle's current position $X$, it's personal best, and the global best of the swarm. We assume that the values of $w$, $c_1$, $c_2$, $r_1$, and $r_2$ are all $1$ for simplicity in this example. Swaps for the random velocity are capped at 10 swaps, and 4 for the other two velocities for the reasons mentioned in implementation details. This example will only demonstrate one iteration of a single particle for brevity. We show the swaps represented by a velocity as a table of $R$'s and $B$'s as shown in Figure \ref{fig:pso_2}, where the letter represents the district color that the tract in the letter's position should be swapped to.
+
+In order to move the particle to a new position during a single iteration, we first generate a random valid velocity for the particle's current position (limited to a maximum of 10 swaps) and add this velocity to $X$. This new position is shown in Figure \ref{fig:pso_2}.
+
+We then calculate the swaps required from the previous position to the particle's personal best (limited to a maximum of 4 swaps) and add this to the previous position. The resulting position is shown in Figure \ref{fig:pso_3}.
+
+Finally, we calculate the swaps required from the previous position to the swarm's global best (also limited to a maximum of 4 swaps) and add this to the previous position. This will result in the new position of the particle ($X'$) for this iteration as shown in Figure \ref{fig:pso_4}.
 
 
 \section{Performance Evaluation}
