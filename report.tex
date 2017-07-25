@@ -13,7 +13,17 @@
 \begin{abstract}
 % The Summary should be a brief version of the full report. It should give the
 % reader an accurate overview. Be brief, but be specific.
-The abstract goes here.
+% reader an accurate overview. Be brief, but be specific. 
+Political Districting is a crucial aspect of the American political system which
+    causes much controversy as groups attempt to divide states in ways that
+    benefit specific agendas.  The particle swarm optimization method proposed
+    in this paper attempts to generate fair and bipartisan districting
+    solutions, optimizing for population equality and district compactness.  The
+    effectiveness of the particle swarm method was then compared with Simulated
+    Annealing, Tabu search, and Hill Climbing.  Evaluations were performed on
+    faked sample data, as well as data on the state of Iowa using 2016 census
+    data.  The particle swarm method was outperformed only by tabu search, and
+    further investigation into this method is recommended.
 \end{abstract}
 
 \section{Introduction}
@@ -447,7 +457,7 @@ Looking at Figure \ref{fig:pop_results}, we could deduce that hill climbing, alt
 \begin{tabular}{l|llll}
                        & \multicolumn{4}{l}{\textbf{Fitness}}                          \\ \hline
 \textbf{Algorithm}     & \textbf{min} & \textbf{max} & \textbf{median} & \textbf{stdev} \\ \hline
-\textbf{SA}            & 3683810.325  & 9296718.255  & 6197845.196     & 1573915.146    \\
+\textbf{SA}            & 3683810.325  & 9296718.255  & 6197845.196     & 1573915.1    \\
 \textbf{PSO}           & 5082.820     & 189513.077   & 65748.985       & 31296.346      \\
 \textbf{Hill Climbing} & 3644.275     & 436675.159   & 19839.867       & 56463.519      \\
 \textbf{Tabu Search}   & 5315.779     & 72478.096    & 18799.833       & 11289.642
