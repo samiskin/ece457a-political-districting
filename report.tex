@@ -12,7 +12,7 @@
 
 \begin{abstract}
 % The Summary should be a brief version of the full report. It should give the
-% reader an accurate overview. Be brief, but be specific. 
+% reader an accurate overview. Be brief, but be specific.
 The abstract goes here.
 \end{abstract}
 
@@ -21,16 +21,16 @@ The abstract goes here.
 % that motivated you to select this project. Explain what was the problem or
 % challenge that you were given? state the purpose of the project and how did
 % you solve it? Enumerate the objectives of the project and describe in brief
-% the structure of the report. 
-\IEEEPARstart{T}{his} demo file is intended to serve as a ``starter file''
-for IEEE journal papers produced under \LaTeX\ using
-IEEEtran.cls version 1.8b and later.
-I wish you the best of success.
+% the structure of the report.
+\subsection{Problem Importance}
 
+\subsection{Project}
+
+\subsection{Report Structure}
 
 \section{Literature Review}
 % Conduct a critical survey on similar solutions and explain how your solution
-% extends or differs from these solutions. 
+% extends or differs from these solutions.
 
 \section{Problem Formulation and Modeling}
 % Include the problem statement and describe its model.
@@ -84,7 +84,7 @@ and dimension.  While this algorithm was meant for problems on a continuous
 space, it can also be used for discrete optimization problems.  Our solution,
 inspired by the work of Kang-Ping Wang et al. \cite{tsp-pso} on the Traveling
 Salesman Problem, proposes a novel method of applying PSO to the discrete
-problem of Political Districting.  
+problem of Political Districting.
 
 \subsection{Initial Solution}
 % Generate an initial solution.
@@ -146,7 +146,7 @@ $$f_{shape} = \sum_{d \in D} \frac{(P_D(d))^2}{A_D(d)}$$
 % Define a suitable neighborhood operator.
 The neighborhood of a given solution is defined as all possible solutions
 reachable by moving one tract from district $i$ to district $j$ such that the
-resulting solution remains contiguous.   
+resulting solution remains contiguous.
 
 
 \subsection{Algorithm Description}
@@ -250,7 +250,7 @@ each district $d$ will be in the same general area.  This trait would
 theoretically help the efficiency of the algorithm immensely, as in the current
 implementation, two equivalent districting solutions could be seen as radically
 different simply because the specific identifiers assigned to the districts are
-different.  
+different.
 
 
 \subsection{Parameter Values}
@@ -292,13 +292,13 @@ The algorithm does not stop in the first two iterations since the stopping condi
 \end{figure}
 Figure \ref{fig:tabu_example} shows the first three iterations of a sample run using our tabu search implementation. Similarly to our SA algorithm, we start with a randomly generated initial solution of two districts. In this particular run, the initial solution has a fitness cost of 22.5.
 
-Throughout the algorithm, we maintain a tabu table, which has the districts as its "x-axis" and the tracts as its "y-axis". Adding a value to cell, say [i][j] of the tabu table means that we have chosen to swap tract j from its old district to district i. In every iteration, we first subtract all the non-zero values by 1 before updating with the new swap. 
+Throughout the algorithm, we maintain a tabu table, which has the districts as its "x-axis" and the tracts as its "y-axis". Adding a value to cell, say [i][j] of the tabu table means that we have chosen to swap tract j from its old district to district i. In every iteration, we first subtract all the non-zero values by 1 before updating with the new swap.
 
 In every iteration, we first find the neighboring solutions to the current solution. These neighboring solutions are found in the same way as done for our SA algorithm. We then iterate through these neighboring solutions to find the one with the best (lowest) fitness cost. We choose these solutions with the constraints that they are not tabu (the solution's value in the tabu table is equal to 0), and that the resulting fitness cost is better than the current solution's fitness cost. The algorithm will stop when the current solution has no more neighbors, or no more viable solutions within its neighbors.
 
 In the specific run shown in Figure \ref{fig:tabu_example}, the chosen tract to be swapped is the 2nd one of the 1st row. Our tabu tenure value has been set to 5, resulting in the value 5 in our tabu table that can be seen in the next iteration.
 
-The next iteration now has a lower cost of 14.7. The chosen tract to be swapped is the 2nd one in the 3rd row. Again this results in the value 5 in the following iteration's tabu table print-out, but before updating the new solution's tabu value to 5, we decrement the existing non-zero values by 1, resulting in the 4 that is seen in the next iteration's tabu table. 
+The next iteration now has a lower cost of 14.7. The chosen tract to be swapped is the 2nd one in the 3rd row. Again this results in the value 5 in the following iteration's tabu table print-out, but before updating the new solution's tabu value to 5, we decrement the existing non-zero values by 1, resulting in the 4 that is seen in the next iteration's tabu table.
  \\
 
 \subsubsection{PSO}~\\
@@ -335,6 +335,45 @@ We then calculate the swaps required from the previous position to the particle'
 
 Finally, we calculate the swaps required from the previous position to the swarm's global best (also limited to a maximum of 4 swaps) and add this to the previous position. This will result in the new position of the particle ($X'$) for this iteration as shown in Figure \ref{fig:pso_4}.
 
+\section{Data}
+Initially, the proposed solutions are run on experimental data in a grid shape,
+known as the Grid Problem. We wanted to apply the solutions on real world data
+to observe whether the results are meaningful. Inspired by literature on Tabu
+Search implementation, we decided to use data from the state of Iowa to perform
+our solution and called it the Iowa Problem. Another motivation to use Iowa was
+because of its relatively normal county subdivision without too many
+abnormally-shaped counties.
+
+The relevant data for the state of Iowa was fetched in several stages due to
+the difficulty of finding consolidated data in one place. From the US census
+bureau, we fetched the data for the county shapefiles, which includes
+information on the county land/water area, name, shape points and relevant
+identifiers such as GeoID. However, in order for the algorithm to work we
+also needed information about individual county populations. Fortunately,
+there is up-to-date county population data available through Iowa
+Demographics\cite{iowa}, which is scraped into a text file. Lastly, the algorithm
+also requires data on county adjacencies and the border length between them.
+The US census surprisingly provides data on county adjacencies on a nationwide
+level\cite{census}, and identifies neighbouring counties by GeoIDs. The border length
+can be calculated by combining this information with the relevant shape points
+of the neighbouring counties.
+
+Since each county contains a vast collection of shape points to describe its
+shape, it becomes a computationally difficult task to find intersecting points
+and lines between all counties within the state. Therefore, we applied
+approximation on the shape points by taking the absolute top right and bottom
+left points, and approximating the shapes into rectangles. Even after the
+approximation process we still have an accurate topological mapping of Iowa.
+By doing so, we can easily compute the border lengths and create visualizations
+to describe the congressional district division of a solution.
+
+\begin{figure}[h!]
+    \includegraphics[width=8cm]{iowa.png}
+    \centering
+    \caption{Visualization of the final congressional district division in the
+        state of Iowa using particle swarm solution from one iteration}
+    \label{fig:iowa}
+\end{figure}
 
 \section{Performance Evaluation}
 % Establish a set of evaluation metrics and run some experiments with different
@@ -344,7 +383,7 @@ Finally, we calculate the swaps required from the previous position to the swarm
 % technique and assess the quality of work as well as its fit with project
 % objectives.
 
-Each algorithm was implemented in Python and tests were run on real data for the state of Iowa from data provided by the U.S. government census data in 2010. For each algorithm we ran a series of tests with 2, 10 and 100 iterations with fixed parameters. The initial parameters for each algorithm were chosen at random within reason. For example, the cooling rate selected for simulated annealing was 0.003. Selecting a faster cooling rate would cause the algorithm to converge to a solution more quickly, which is undesirable.
+Each algorithm was implemented in Python and tests were run on real data for the state of Iowa from data provided by the U.S. government census data in 2016. For each algorithm we ran a series of tests with 2, 10 and 100 iterations with fixed parameters. The initial parameters for each algorithm were chosen at random within reason. For example, the cooling rate selected for simulated annealing was 0.003. Selecting a faster cooling rate would cause the algorithm to converge to a solution more quickly, which is undesirable.
 For each algorithm, the results for each run was recorded. With this data, the minimum, maximum, median and standard deviation were computed for each of the evaluation criteria: compactness, population equality and overall fitness. These criteria were calculated as discussed in Section \ref{sec:proposed_solution} (Proposed Solution). We assumed that all our solutions met the contiguity criteria since this was a hard constraint implemented in each algorithm (i.e. moves or operations were not selected if they resulted in discontinuities). The statistics for each algorithm were then exported to a csv file and graphed, which can be viewed in the tables and figures below.
 
 \subsection{Compactness Results}
@@ -359,7 +398,7 @@ For each algorithm, the results for each run was recorded. With this data, the m
 \textbf{SA}            & 19.255       & 587.016      & 495.146         & 244.594       \\
 \textbf{PSO}           & 57.213       & 229.580      & 109.956         & 33.041         \\
 \textbf{Hill Climbing} & 52.983       & 264.8        & 122.061         & 41.088         \\
-\textbf{Tabu Search}   & 66.946       & 257.239      & 127.855         & 39.242            
+\textbf{Tabu Search}   & 66.946       & 257.239      & 127.855         & 39.242
 \end{tabular}
 \end{table}
 
@@ -370,7 +409,7 @@ For each algorithm, the results for each run was recorded. With this data, the m
     \label{fig:compactness_results}
 \end{figure}
 
-Since our results show the values of cost functions, the lower the value, the better the solution is. Based on the numbers in Table \ref{tab:comp_100iter} as well as Figure \ref{fig:compactness_results}, it is evident that simulated annealing had the most unfavourable compactness results by a significant amount. The other 3 algorithms had similar performance in regards to compactness, but based on our results, PSO generally performed the best, followed by hill climbing and then tabu search. 
+Since our results show the values of cost functions, the lower the value, the better the solution is. Based on the numbers in Table \ref{tab:comp_100iter} as well as Figure \ref{fig:compactness_results}, it is evident that simulated annealing had the most unfavourable compactness results by a significant amount. The other 3 algorithms had similar performance in regards to compactness, but based on our results, PSO generally performed the best, followed by hill climbing and then tabu search.
 
 \subsection{Population Equality Results}
 
@@ -384,7 +423,7 @@ Since our results show the values of cost functions, the lower the value, the be
 \textbf{SA}            & 1841655      & 4648349.5    & 3098654         & 787073.096         \\
 \textbf{PSO}           & 2463         & 94699        & 32829.25        & 15648.72           \\
 \textbf{Hill Climbing} & 1749         & 218283       & 9859.75         & 28231.930        \\
-\textbf{Tabu Search}   & 36195.5      & 9319.25         & 5647.456       & 5315.779     
+\textbf{Tabu Search}   & 36195.5      & 9319.25         & 5647.456       & 5315.779
 \end{tabular}
 \end{table}
 
@@ -411,11 +450,11 @@ Looking at Figure \ref{fig:pop_results}, we could deduce that hill climbing, alt
 \textbf{SA}            & 3683810.325  & 9296718.255  & 6197845.196     & 1573915.146    \\
 \textbf{PSO}           & 5082.820     & 189513.077   & 65748.985       & 31296.346      \\
 \textbf{Hill Climbing} & 3644.275     & 436675.159   & 19839.867       & 56463.519      \\
-\textbf{Tabu Search}   & 5315.779     & 72478.096    & 18799.833       & 11289.642     
+\textbf{Tabu Search}   & 5315.779     & 72478.096    & 18799.833       & 11289.642
 \end{tabular}
 \end{table}
 
-Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that simulated annealing performed significantly worse in comparison to the other 3 algorithms, so it has again been excluded in this correspondin graph representation below for better visualization of the other algorithm results. 
+Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that simulated annealing performed significantly worse in comparison to the other 3 algorithms, so it has again been excluded in this correspondin graph representation below for better visualization of the other algorithm results.
 
 \begin{figure}[h!]
     \includegraphics[width=8cm]{images/fitness_graph.png}
@@ -424,19 +463,19 @@ Looking at the values in Table \ref{tab:fitness_100iter}, it is evident that sim
     \label{fig:fitness_results}
 \end{figure}
 
-Figure \ref{fig:fitness_results} shows the results for the overall fitness costs for the algorithms we tested, excluding simulated annealing. The conclusions that can be made are similar to that of the results for population equality. Hill Climbing appeared to work well on average cases, but did significantly poorly in certain edge cases. PSO performed the worst on average, looking at the median values. Tabu Search again performed the best on average cases (it has the lowest median value), had the lowest maximum cost, and the lowest deviation. Based on these results, it can be concluded that for the Iowa state dataset of 2010, tabu search would give the best performance for the Political Districting problem. 
+Figure \ref{fig:fitness_results} shows the results for the overall fitness costs for the algorithms we tested, excluding simulated annealing. The conclusions that can be made are similar to that of the results for population equality. Hill Climbing appeared to work well on average cases, but did significantly poorly in certain edge cases. PSO performed the worst on average, looking at the median values. Tabu Search again performed the best on average cases (it has the lowest median value), had the lowest maximum cost, and the lowest deviation. Based on these results, it can be concluded that for the Iowa state dataset of 2016, tabu search would give the best performance for the Political Districting problem.
 
 \section{Conclusions \& Recommendations}
 % Summarize the conclusion and future improvement. Explain how did you solve the
 % problem, what problems were met? what did the results show? And how to refine
 % the proposed solution? You may organize ideas using lists or numbered points,
 % if appropriate, but avoid making your report into a check-list or a series of
-% encrypted notes 
+% encrypted notes
 Our results show that tabu search provides solutions that have the best overall fitness (the least cost) in comparison to the other algorithms we tested. This means that when the tabu search algorithm is run on the data set, it produces solutions that are generally more compact and equal in population than what hill climbing, simulated annealing and particle swarm optimization would produce. Looking at the compactness results from each algorithm, we observe that on average, particle swarm optimization provides better solutions compared to hill climbing, tabu search. Meanwhile, simulated annealing produces large fitness values which are not ideal compared to the other algorithms. Comparing the population equality results we see that simulated annealing again does significantly worse compared to the other algorithms and tabu search did relatively well.
 
 As a result of our experiments and observations of results, it is recommended that further research and parameter tuning effort should be put towards the tabu search algorithm. Tabu search performed the best on average and relatively well when considering each evaluation criteria for political districting. A second recommendation would also be to further research particle swarm optimization methods applied to the political districting problem. Particle swarm optimization performed the second best after observing the results of the overall fitness function.
 
-Given more time, we would have further tuned the parameters for each algorithm. Doing so would allow us to compare the optimal solutions that each algorithm produces. This would give us more accurate insights into which algorithm produces the best results based on the criteria. Running a large number of iterations for certain algorithms was very costly in time and limited us to run at most 100 iterations for each algorithm. In the previous papers we found while researching, we found that the number of iterations done in the different experiments varied from 30 iterations\cite{local-search-2} to 20,000 iterations\cite{geometric-ga}. To justify a reasonable accuracy with 100 iterations, we compared the results between running 10 and 100 iterations, and confirmed that the results were relatively similar. 
+Given more time, we would have further tuned the parameters for each algorithm. Doing so would allow us to compare the optimal solutions that each algorithm produces. This would give us more accurate insights into which algorithm produces the best results based on the criteria. Running a large number of iterations for certain algorithms was very costly in time and limited us to run at most 100 iterations for each algorithm. In the previous papers we found while researching, we found that the number of iterations done in the different experiments varied from 30 iterations\cite{local-search-2} to 20,000 iterations\cite{geometric-ga}. To justify a reasonable accuracy with 100 iterations, we compared the results between running 10 and 100 iterations, and confirmed that the results were relatively similar.
 
 
 \begin{thebibliography}{1}
@@ -448,11 +487,11 @@ Given more time, we would have further tuned the parameters for each algorithm. 
 % consequences.
 
 \bibitem{tsp-pso}
-Kang-Ping~Wang et al. Particle Swarm Optimization for Travelling Salesman
+    Kang-Ping~Wang et al. Particle Swarm Optimization for Travelling Salesman
         Problem, 2003
 
 \bibitem{voronoi}
-Federica~Ricca et al. Weighted Voronoi region algorithms for political
+    Federica~Ricca et al. Weighted Voronoi region algorithms for political
         districting, 2008
 
 \bibitem{local-search}
@@ -466,10 +505,14 @@ Federica~Ricca et al. Weighted Voronoi region algorithms for political
     Federica~Ricca et al., Local Search Algorithms for Political Districting, 2007
 
 \bibitem{initial}
-Vickrey, W.: On the prevention of gerrymandering, 1961
+    Vickrey, W.: On the prevention of gerrymandering, 1961
+
+\bibitem{census}
+    G. Branch. County Adjacency File - Geography - U.S. Census Bureau, 2016
+
+\bibitem{iowa}
+    Iowa Demographics. Iowa Counties by Population, 2016
+
 
 \end{thebibliography}
 \end{document}
-
-
-
