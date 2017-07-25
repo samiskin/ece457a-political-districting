@@ -34,80 +34,274 @@ I wish you the best of success.
 
 \section{Problem Formulation and Modeling}
 % Include the problem statement and describe its model.
-The Political Districting problem can be modeled as an assignment problem with specific constraints.  The goal is to assign a fixed set of Geographical Units (GUs) to a fixed number of districts, where each district is contiguous, while minimizing a certain cost function.  
+The Political Districting problem can be modeled as an assignment problem with
+specific constraints.  The goal is to assign a fixed set of tracts to a fixed
+number of districts, where each district is contiguous, while minimizing a
+certain cost function.  The inputs provided to our algorithms are:
 
-Let $U$ be the set of all GUs, and let $D$ be the set of all districts.  Our goal is to minimize 
-\begin{equation}
-\sum_{u \in U} \sum_{d \in D} c_{ud} x_{ud}\\
-\end{equation}
-where
-\begin{equation}
-x_{ij} = 1 \text{ or } 0\\
-\end{equation}
-\begin{equation}
-\sum_{d \in D} x_{ud} = 1, (u \in U)\\
-\end{equation}
+\begin{itemize}
+\item $T$, The set of tracts
+\item $D$, the set of Districts
+\item $P_T(x)$ which gives the population of a given tract
+\item $A_T(x)$ which gives the area of a given tract
+\item $Borders(x)$ which, for a given tract, returns the set of tracks adjacent to it paired with the lengths of those borders
+\end{itemize}
 
+We define a solution as a mapping $s: T \rightarrow D$ where every unit in $T$
+is mapped to a single district in $D$, and every district in $D$ has at least
+one unit in $T$ assigned to it.  The encoding method does not make any effort to
+guarantee district contiguity, therefore it is left to the algorithm to only
+generate valid solutions.
 
 \section{Proposed Solution}
 \label{sec:proposed_solution}
+Particle Swarm Optimization is an optimization technique which models particles
+moving through a continuous n-dimensional search space, where each particle
+represents a potential solution to the problem.  In the classical PSO algorithm,
+a set of particles are initialized to a certain solution, then at each
+iteration, each particle computes its next position via the following equations
+of motion:
+
+\begin{equation}
+\label{vel-update-eqn-classic}
+\begin{aligned}
+v_{t + 1}^{id} &= w \cdot v_t^{id}\\
+&+ c_1r_1^{id}(lbest_t^{id} - x_t^{id})\\
+&+ c_2r_2^{id}(gbest_t^{id} - x_t^{id})\\
+\end{aligned}
+\end{equation}
+\begin{equation}
+\label{pos-update-eqn-classic}
+x_{t + 1}^{id} = x_t^{id} + v_{t + 1}^{id}
+\end{equation}
+
+Where $v$ is the velocity of particle $id$, $w$ is the inertia weight, $c_1,
+c_2$ are acceleration coefficients, $r_1, r_2$ are randomly generated numbers in
+$[0, 1]$, $x$ is the position of the particle, $lbest$ is the best solution the
+particle has traversed, $gbest$ is the best solution traversed across all
+particles, $t$ is the iteration number, and $i$ and $d$ are the particle number
+and dimension.  While this algorithm was meant for problems on a continuous
+space, it can also be used for discrete optimization problems.  Our solution,
+inspired by the work of Kang-Ping Wang et al. \cite{tsp-pso} on the Traveling
+Salesman Problem, proposes a novel method of applying PSO to the discrete
+problem of Political Districting.  
 
 \subsection{Initial Solution}
 % Generate an initial solution.
+In order to generate a valid initial solution, we proceed as in Vickrey
+\cite{initial} and Bozkaya \cite{local-search}.  Initially, all tracts are not
+yet assigned to any district. The goal of this algorithm is to generate an
+initial solution such that all tracts are assigned to exactly $|D|$ contiguous
+districts.
+
+For the purpose of this algorithm, we define a target population for the
+districts in the initial solution:
+$$\bar{P} = \frac{\sum_{x \in T} P_T(x)}{|D|}$$
+
+We create our districts by picking an unassigned seed tract, and then gradually
+add randomly picked unassigned adjacent tracts to the district until the
+population of the district exceeds $\bar{P}$ for the first time, or there are no
+unassigned adjacent tracts available. We do this until all the tracts are
+assigned to a district.
+
+The result of this initial assignment could result in $k$ districts that may or
+may not be equal to $|D|$.
+
+If $k > |D|$, we iteratively pick the district with the smallest population, and
+merge it with its smallest neighbour to preserve contiguity. In the case where
+$k < |D|$, we iteratively increase the number of districts by splitting the
+district with the largest population into two districts while still preserving
+contiguity. At the end of this process, there will be exactly $|D|$ valid
+districts that can be used as an initial solution.
+
 \subsection{Cost Function}
 % Suggest a cost function (objective function) suitable for this problem.
-While there are many factors that can be considered for political districting, for the sake of efficiency and simplicity, our fitness function only focuses on the two main goals of political districting which are population equality and district compactness.  These measures do not assess the contiguity of a solution, as the algorithms used are designed to only evaluate valid solutions.  A constant coefficient is introduced to each term to allow us to tune how much each factor contributes to the overall fitness.
+While there are many factors that can be considered for political districting,
+for the sake of efficiency and simplicity, our fitness function only focuses on
+the two main goals of political districting which are population equality and
+district compactness.  These measures do not assess the contiguity of a
+solution, as the algorithms used are designed to only evaluate valid solutions.
+A constant coefficient is introduced to each term to allow us to tune how much
+each factor contributes to the overall fitness.
 
-$$f(x) = c_{pop} \cdot f_{pop} + c_{shape} \cdot f_{shape}$$
+$$f(x) = c_{pop} \cdot f_{pop}(x) + c_{shape} \cdot f_{shape}(x)$$
 
 \subsubsection{Population Equality}
-In an ideal solution, each district would have the same population, which would equal the average population across the districts.  We therefore define the measure of population equality for a set of districts $D$ where $P_d(x)$ is the total population of district $d \in D$ as
-$$f_{pop}(x) = \sum_{d \in D} \left(P_d(x) - \frac{\sum_{j \in D} P_j(x)}{|D|}\right)$$
+In an ideal solution, each district would have the same population, which would
+equal the average population across the districts.  We therefore define the
+measure of population equality for a set of districts $D$ where $P_D(d)$ is the
+total population of district $d \in D$ as
+$$f_{pop}(x) = \sum_{d \in D} P_D(d) - \bar{P}$$
 
 \subsubsection{Compactness}
-To evaluate compactness we use the Schwartzberg Index, which is the perimeter of a district squared divided by its area, due to it being simple to compute.
+To evaluate compactness we use the Schwartzberg Index\cite{schwartzberg}, which
+is the perimeter of a district squared divided by its area, due to it being
+simple to compute.  The perimeter of a district is computed by summing up the
+outward border lengths of the tracts on its border, and the area of a district
+is computed as the sum of the tract areas.
 
-$$f_{shape} = \sum_{d \in D} \frac{(perimeter_d)^2}{area_d}$$
+$$f_{shape} = \sum_{d \in D} \frac{(P_D(d))^2}{A_D(d)}$$
 
 \subsection{Neighborhood}
 % Define a suitable neighborhood operator.
-The neighborhood of a given solution is defined as all possible solutions reachable by swapping one GU from district $i$ to district $j$.  
+The neighborhood of a given solution is defined as all possible solutions
+reachable by moving one tract from district $i$ to district $j$ such that the
+resulting solution remains contiguous.   
+
+
 \subsection{Algorithm Description}
 % Define a suitable solving strategy for this problem.
+In order to apply Particle Swarm Optimization on our problem we must define
+sufficient terminology and mathematical operators to be able to perform the
+update function \ref{vel-update-eqn-classic}.\\
+
+\subsubsection{Velocity}
+For the discrete solution space of district assignment, we define "velocity" to
+be an ordered sequence of Swap Operators.  A given Swap Operator $SO(t, d)$ is
+defined as taking tract $t$ belonging to district $d_o$ and being reassigned to
+district $d$, where $d_o \neq d$.\\
+
+\subsubsection{Initial Velocity and Inertia}
+Initial particle velocities are generated by performing random swaps that still
+generate valid solutions.  The $v$ term in \ref{vel-update-eqn-classic} is also
+generated as a random sequence of swaps, where the length of this sequence is a
+constant parameter.  As a result, the concept of "inertia" is not present in our
+solution.\\
+
+\subsubsection{Addition of Velocity to a Solution}
+Given a solution $X$ and a velocity $V = (SO_1, SO_2, \cdots SO_m)$, $X + V$ is
+the solution resulting from the application of swaps $SO_1 \cdots SO_m$ on $X$
+in ascending order.  In order to assure that the algorithm only produces valid
+solutions, the resulting state must be contiguous.\\
+
+\subsubsection{Subtraction of Solutions from Solutions}
+Given two valid solutions $A$ and $B$, the subtraction operator $A - B = V$ is a
+velocity described as a sequence of swaps required to transform solution $B$
+into $A$.  The resulting velocity $V$ is guaranteed to be valid when applied to
+solution $A$, as $B$ is assumed to be valid.  In our implementation, this
+sequence is determined by iterating through districts in $B$ and applying $SO(t,
+d)$ if tract $t$ is assigned to district $d$ in solution $A$ but not in solution
+$B$, and the result remains contiguous.\\
+
+\subsubsection{Multiplication of Real Numbers and Velocities}
+Given $V = (SO_1, \cdots SO_m)$ we define $c \cdot V, c \in [0, 1]$ as the
+sequence constructed from the first $\lceil c\cdot m \rceil$ swap operators in
+$V$.  Any values of $c$ outside of $[0, 1]$ are considered invalid.\\
+
+\subsubsection{Modified Update}
+To perform equation~\ref{pos-update-eqn-classic}, changes must be made
+to~\ref{vel-update-eqn-classic} to guarantee that $x_{t}^{id} + v_{t + 1}^{id}$
+results in a contiguous solution. Naively
+performing~\ref{vel-update-eqn-classic} would result in the $w \cdot v_t^{id}$,
+$c_1r_1^{id}(lbest_t^{id} - x_t^{id})$, and $c_2r_2^{id}(gbest_t^{id} -
+x_t^{id})$ being valid on $x_t^{id}$, however in order to add these resulting
+velocities to calculate $v_{t + 1}^{id}$, we cannot simply append the swap
+sequences.  Even if swap sequences $v_1$ and $v_2$ are both valid on solution
+$x$, $v_2$ is not guaranteed to be valid on $x + v_1$.  We therefore use a
+modified position update method
+\begin{equation}
+\begin{aligned}
+X_1 &= x_{t}^{id} + w \cdot v_{t}^{id}\\
+X_2 &= X1 + r_1 \cdot c_1 \cdot (lbest_{t}^{id} - X_1)\\
+x_{t + 1}^{id} &= X_2 + r_2 \cdot c_2 \cdot (gbest_t^{id} - X_2)\\
+\end{aligned}
+\end{equation}
+
+Since the $r_1 \cdot c_1 \cdot (lbest_{t}^{id} - X_1)$ term of $X_2$ is
+generated from $X_1$, adding the first $i$ elements of that result to $X_1$ is
+guaranteed to be a contiguous solution.  The same reasoning can be applied to
+conclude that $x_{t + 1}^{id}$ is a valid solution\\
+
+This method of addition differs from the classical vector addition, however it
+achieves the same goal of having a particle move in the direction of a velocity,
+in the direction of the local best, and in the direction of the global best,
+each to some variable degree.  One important difference to note, is that if each
+coefficient was $1$, even though each velocity is applied "equally", $X_2$ would
+be equivalent to $lbest$, and $x_{t + 1}$ would be equivalent to $gbest$.  This
+detail can be handled by tuning the constant terms.\\
+
+\subsubsection{Implementation Details}
+The computation of $A - B$ where $A$ and $B$ are solutions is expensive, as the
+process of getting from $A$ to $B$ may require a very large number of swaps.  We
+therefore introduce a constant parameter which describes the maximum number of
+swaps to generate when calculating $A - B$.  Another issue with a naive
+implementation is that when generating a random velocity, certain swaps may undo
+previous swaps.  To avoid this, a tabu list is maintained, which disallows
+assigning a cell to a district it had previously been assigned to during that
+swap sequence.\\
+
+
+\subsubsection{Possible Improvements}
+There are certain ideas which we did not have time to implement, however may
+theoretically result in improvements in performance and solution quality.  While
+our current implementation has no concept of "inertia", we could define
+"inertia" to be related to which districts grew or shrunk during the previous
+iteration.  To create the swap sequence $v_{t} = SO_{t, 1} .. SO_{t, m}$ that is
+valid on $x_t$, and inherits the inertia of $v_{t - 1} = SO_{t - 1, 1} .. SO_{t
+- 1, m}$, we would ensure that for $SO_{t - 1, i} = (u_{t - 1}, d_{t - 1}$ and
+$SO_{t, i} = (u_t, d_t)$, $d_{t - 1} = d_t$ and $s(u_{t - 1}) = s(u_t)$.  This
+means that every swap in each swap sequence will take a tract from district $i$
+and move it to district $j$, the only difference between the sequences is which
+tract was swapped.  Another possible improvement would be to establish certain
+"centers" for each district, similar to what was done in the work by Federica
+Ricca et al.\cite{voronoi}.  Each district would have one "center" tract which
+is always assigned to that district.  This means that between two solutions,
+each district $d$ will be in the same general area.  This trait would
+theoretically help the efficiency of the algorithm immensely, as in the current
+implementation, two equivalent districting solutions could be seen as radically
+different simply because the specific identifiers assigned to the districts are
+different.  
+
+
 \subsection{Parameter Values}
 % Select your own values for the parameter and explain the basis for your selection.
-\subsection{Example Runthrough}
+We tested arbitrary combinations of values for $w$, $c_1$, and $c_2$ where $w, c_1, c_2 <= 1$ because of the constraints set by how we defined a particle's velocity. A parameter value greater than $1$ would not have made any sense given our velocity model. The swarm size was limited by our computing power to 5 particles.
+
+\subsection{Example Run-through}
 % Describe how each algorithm (TS, SA, GA, PSO and ACO) will proceed to solve
 % this problem by performing at least two hand iterations on a reduced version
 % of the problem.
 We will demonstrate two iterations of the three algorithms we have chosen to implement using a simple example input.
-The input will be represented as a grid of cells, where each cell shares a border with its vertical and horizontal neighboring cells. 
+The input's tracts are conceptually a grid of tracts, where each tract shares a border with its vertical and horizontal neighboring tracts.
 
-The population of each cell will be assumed to be 1 for simplicity, and the solution will be a grouping of cells such that there are exactly two groups that represent two districts. \\
+The population of each tract is 1 for simplicity, and the solution will be a grouping of tracts such that there are exactly two groups that represent two districts. \\
 
-\subsubsection{Simulated Annealing}~\\\\
-% \begin{figure}[h!]
-%     \includegraphics[width=3cm]{sa.png}
-%     \centering
-%     \label{fig:sa_example}
-%     \caption{Example run using Simulated Annealing}
-% \end{figure}
+\subsubsection{Simulated Annealing}~\\
+\begin{figure}[h!]
+    \includegraphics[width=3cm]{sa.png}
+    \centering
+    \caption{Example run using Simulated Annealing}
+        \label{fig:sa_example}
+\end{figure}
+
 Figure \ref{fig:sa_example} shows the first two iterations of the SA implementation.
 We start with a randomly generated initial solution of two districts with a fitness cost of 19.3 (calculated using the previously defined cost function).
 
-The neighborhood of the initial solution is defined by the set of possible cell swaps (switching a cell from one district to another) without breaking continuity.
+The neighborhood of the initial solution is defined by the set of possible tract swaps (switching a tract from one district to another) without breaking continuity.
 
 The algorithm will randomly pick one of these neighbors, and will choose it as the new solution if its fitness is better than the current one, or if the acceptance probability given the current temperature allows for worser solutions.
 
 The algorithm does not stop in the first two iterations since the stopping conditions have not been met. Since the temperature is quite high in the beginning, the first two iterations also end up accepting solutions that have a worse fitness than the previous solution. \\
 
-\subsubsection{Tabu Search}~\\\\
-% \begin{figure}[h!]
-%     \includegraphics[width=3cm]{sa.png}
-%     \centering
-%     \label{fig:sa_example}
-%     \caption{Example run using Tabu Search}
-% \end{figure}
+\subsubsection{Tabu Search}~\\
+\begin{figure}[h!]
+    \includegraphics[width=6cm]{tabu.png}
+    \centering
+    \caption{Example run using Tabu Search}
+        \label{fig:tabu_example}
+\end{figure}
+Figure \ref{fig:tabu_example} shows the first three iterations of a sample run using our tabu search implementation. Similarly to our SA algorithm, we start with a randomly generated initial solution of two districts. In this particular run, the initial solution has a fitness cost of 22.5.
+
+Throughout the algorithm, we maintain a tabu table, which has the districts as its "x-axis" and the tracts as its "y-axis". Adding a value to cell, say [i][j] of the tabu table means that we have chosen to swap tract j from its old district to district i. In every iteration, we first subtract all the non-zero values by 1 before updating with the new swap. 
+
+In every iteration, we first find the neighboring solutions to the current solution. These neighboring solutions are found in the same way as done for our SA algorithm. We then iterate through these neighboring solutions to find the one with the best (lowest) fitness cost. We choose these solutions with the constraints that they are not tabu (the solution's value in the tabu table is equal to 0), and that the resulting fitness cost is better than the current solution's fitness cost. The algorithm will stop when the current solution has no more neighbors, or no more viable solutions within its neighbors.
+
+In the specific run shown in Figure \ref{fig:tabu_example}, the chosen tract to be swapped is the 2nd one of the 1st row. Our tabu tenure value has been set to 5, resulting in the value 5 in our tabu table that can be seen in the next iteration.
+
+The next iteration now has a lower cost of 14.7. The chosen tract to be swapped is the 2nd one in the 3rd row. Again this results in the value 5 in the following iteration's tabu table print-out, but before updating the new solution's tabu value to 5, we decrement the existing non-zero values by 1, resulting in the 4 that is seen in the next iteration's tabu table. 
+ \\
+
+\subsubsection{PSO}~\\
 
 
 \section{Performance Evaluation}
@@ -238,6 +432,9 @@ Federica~Ricca et al. Weighted Voronoi region algorithms for political
 
 \bibitem{local-search-2}
     Federica~Ricca et al., Local Search Algorithms for Political Districting, 2007
+
+\bibitem{initial}
+Vickrey, W.: On the prevention of gerrymandering, 1961
 
 \end{thebibliography}
 \end{document}
